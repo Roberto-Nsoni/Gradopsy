@@ -1,0 +1,4 @@
+.git/
+.venv/
+TODO.md
+__pycache__
