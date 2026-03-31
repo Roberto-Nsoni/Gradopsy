@@ -2,3 +2,6 @@
 .venv/
 TODO.md
 __pycache__
+*.ipynb
+.coverage
+.vscode

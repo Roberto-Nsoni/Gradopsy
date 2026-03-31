@@ -2,8 +2,7 @@ import numpy as np
 from typing import Any
 
 from src.ml.ops import *
-
-Array = np.typing.NDArray[Any]
+from src.ml.nn.activations import *
 
 class Tensor:
     def __init__(self, data: np.typing.ArrayLike, requires_grad: bool = False) -> None:
@@ -19,7 +18,20 @@ class Tensor:
     def __repr__(self) -> str:
         return str(self.data)
     
-    def __add__(self, other: "Tensor | int | float") -> "Tensor":
+    def __neg__(self):
+        ret = Tensor(Neg.forward(self.data), requires_grad=self.requires_grad)
+
+        if self.requires_grad:
+            def _backward():
+                self.grad += Neg.backward(ret.grad)
+        
+            ret._prev = {self}
+            ret._backward = _backward  
+            ret._op = "neg"
+
+        return ret
+
+    def __add__(self, other: "Tensor | ScalarLike") -> "Tensor":
         if not isinstance(other, Tensor):
             other = Tensor([other])
 
@@ -40,7 +52,7 @@ class Tensor:
         
         return ret
 
-    def __mul__(self, other: "Tensor | int | float") -> "Tensor":
+    def __mul__(self, other: "Tensor | ScalarLike") -> "Tensor":
         if not isinstance(other, Tensor):
             other = Tensor([other])
             
@@ -62,6 +74,22 @@ class Tensor:
 
         return ret
 
+    def __pow__(self, other: int) -> "Tensor":
+        ret = Tensor(Pow.forward(self.data, other), requires_grad=self.requires_grad)
+
+        if self.requires_grad:
+            ctx: dict[str, Any] = {"a": self.data, "b": other}
+
+            def _backward():
+                g_self = Pow.backward(ctx, ret.grad)
+                if self.requires_grad: self.grad += g_self
+
+            ret._prev = {self}
+            ret._backward = _backward  
+            ret._op = "pow"
+        
+        return ret
+
     def __matmul__(self, other: "Tensor") -> "Tensor":
         requires_grad = self.requires_grad or other.requires_grad
         ret = Tensor(MatMul.forward(self.data, other.data), requires_grad=requires_grad)
@@ -79,6 +107,44 @@ class Tensor:
             ret._op = "matmul"
         
         return ret
+    
+    def __sub__(self, other: "Tensor | ScalarLike") -> "Tensor": return self + (-other)
+    def __truediv__(self, other: "Tensor | ScalarLike") -> "Tensor": return self * (other ** -1)
+    def __radd__(self, other: "Tensor | ScalarLike") -> "Tensor": return self + other
+    def __rsub__(self, other: "Tensor | ScalarLike") -> "Tensor": return other + (-self)
+    def __rmul__(self, other: "Tensor | ScalarLike") -> "Tensor": return self * other
+
+    def exp(self, base: ScalarLike | None = None) -> "Tensor":
+        ret = Tensor(Exp.forward(self.data, base), requires_grad=self.requires_grad)
+
+        if self.requires_grad:
+            ctx: dict[str, Any] = {"a": self.data, "b": base}
+
+            def _backward():
+                g_self = Exp.backward(ctx, ret.grad)
+                if self.requires_grad: self.grad += g_self
+
+            ret._prev = {self}
+            ret._backward = _backward  
+            ret._op = "exp"
+        
+        return ret
+
+    def log(self, base: ScalarLike | None = None) -> "Tensor":
+        ret = Tensor(Log.forward(self.data, base), requires_grad=self.requires_grad)
+
+        if self.requires_grad:
+            ctx: dict[str, Any] = {"a": self.data, "b": base}
+
+            def _backward():
+                g_self = Log.backward(ctx, ret.grad)
+                if self.requires_grad: self.grad += g_self
+
+            ret._prev = {self}
+            ret._backward = _backward  
+            ret._op = "exp"
+        
+        return ret
 
     def sum(self, axis: int | tuple[int, ...] | None = None) -> "Tensor":
         ret = Tensor(Sum.forward(self.data, axis), requires_grad=self.requires_grad)
@@ -87,7 +153,7 @@ class Tensor:
             ctx = {"a_shape": self.shape}
 
             def _backward():
-                (g_self,) = Sum.backward(ctx, ret.grad)
+                g_self = Sum.backward(ctx, ret.grad)
                 self.grad += g_self
 
             ret._prev = {self}
@@ -102,13 +168,65 @@ class Tensor:
             ctx: dict[str, Any] = {"a_shape": self.shape, "a_size": self.size, "out_size": ret.size}
 
             def _backward():
-                (g_self,) = Mean.backward(ctx, ret.grad)
+                g_self = Mean.backward(ctx, ret.grad)
                 self.grad += g_self
 
             ret._prev = {self}
             ret._backward = _backward  
             ret._op = "mean"
         return ret
+
+    def relu(self):
+        ret = Tensor(ReLU.forward(self.data), requires_grad=self.requires_grad)
+        if self.requires_grad:
+            ctx = {"a": self.data}
+            def _backward():
+                self.grad += ReLU.backward(ctx, ret.grad)
+            ret._prev = {self}
+            ret._backward = _backward
+        return ret
+    
+    def sigmoid(self):
+        ret = Tensor(Sigmoid.forward(self.data), requires_grad=self.requires_grad)
+        if self.requires_grad:
+            ctx = {"sig": ret.data}
+            def _backward():
+                self.grad += Sigmoid.backward(ctx, ret.grad)
+            ret._prev = {self}
+            ret._backward = _backward
+        return ret
+    
+    def tanh(self):
+        ret = Tensor(Tanh.forward(self.data), requires_grad=self.requires_grad)
+        if self.requires_grad:
+            ctx = {"tanh": ret.data}
+            def _backward():
+                self.grad += Tanh.backward(ctx, ret.grad)
+            ret._prev = {self}
+            ret._backward = _backward
+        return ret
+
+    def backward(self) -> None:
+        # Find topological sort
+        topo_order: list[Tensor] = []
+        visited: set[Tensor] = set()
+        pile: list[Tensor] = [self]
+        while pile:
+            curr = pile[-1]
+            if curr not in visited:
+                visited.add(curr)
+                for adj in curr._prev:
+                    if adj not in visited:
+                        pile.append(adj)
+            else:
+                topo_order.append(pile.pop())
+
+        # Reset all grads in the graph to zero before starting? 
+        # Or just assume user called zero_grad()
+        self.grad = np.ones_like(self.data)
+
+        for t in reversed(topo_order):
+            t._backward()
 
     def zero_grad(self):
         self._grad = None
@@ -150,39 +268,18 @@ class Tensor:
     def grad(self, value: Array):     
         self._grad = value
 
-    def backward(self) -> None:
-        # Find topological sort
-        topo_order: list[Tensor] = []
-        visited: set[Tensor] = set()
-        pile: list[Tensor] = [self]
-        while pile:
-            curr = pile[-1]
-            if curr not in visited:
-                visited.add(curr)
-                for adj in curr._prev:
-                    if adj not in visited:
-                        pile.append(adj)
-            else:
-                topo_order.append(pile.pop())
-
-
-        # Reset all grads in the graph to zero before starting? 
-        # Or just assume user called zero_grad()
-        self.grad = np.ones_like(self.data)
-
-        for t in reversed(topo_order):
-            t._backward()
-
 if __name__ == "__main__":
-    x = Tensor([2.0, 3.0])
-    w = Tensor([0.5, -0.1], requires_grad=True)
-    b = Tensor(0.1, requires_grad=True)
+    t1 = Tensor([1., 2.])
+    t2 = Tensor([3., -2])
 
-    y = (x * w).sum() + b 
-    y.backward()
+    print(t1 +(-t2))
 
-    print(f"Result: {y.data}") # Should be (2*0.5 + 3*-0.1) + 0.1 = 0.8
-    print(f"Gradient w: {w.grad}") # Should be [2.0, 3.0]
-    print(f"Gradient b: {b.grad}") # Should be 1.0
+    t1 = Tensor([-1., 2., 3.], requires_grad=True)
+    t2 = t1.relu()
+    t2.sum().backward()
+    print(t1.grad)
 
-
+    t1 = Tensor([0.], requires_grad=True)
+    t2 = t1.sigmoid()
+    t2.sum().backward()
+    print(t1.grad)

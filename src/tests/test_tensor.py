@@ -94,18 +94,15 @@ def test_zero_grad():
 
 def test_linear_regression_grad():
     x = Tensor([[1.,2.]], requires_grad=False)
-    W = Tensor([[1.,2.],[3.,4.]], requires_grad=True)
+    W = Tensor([[1.,3.],[2.,4.]], requires_grad=True)
     b = Tensor([[1.,1.]], requires_grad=True)
 
-    y = x @ W + b
+    y = x @ W.T + b
     L = y.mean()
     L.backward()
 
-    print("W.grad:")
-    print(W.grad)
-
-    print("b.grad:")
-    print(b.grad)
+    assert np.allclose(W.grad, [[0.5, 1.0], [0.5, 1.0]])
+    assert np.allclose(b.grad, [[0.5, 0.5]])
 
 
 def test_forward_neuron():
