@@ -98,13 +98,14 @@ class Log:
     @staticmethod
     def forward(a: Array, b: ScalarLike | None = None) -> Array:
         if b is None:
-            b = np.e
+            return np.log(a)
         return np.log(a) / np.log(b)
 
     @staticmethod
     def backward(ctx: dict[str, Any], ret_grad: Array) -> Array:
         a, b = ctx["a"], ctx["b"]
-        if b is None: b = np.e
+        if b is None:
+            return ret_grad * 1 / a
         a_grad = ret_grad * 1 / (a * np.log(b))
         return a_grad
 

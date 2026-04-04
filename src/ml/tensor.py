@@ -142,7 +142,7 @@ class Tensor:
 
             ret._prev = {self}
             ret._backward = _backward  
-            ret._op = "exp"
+            ret._op = "log"
         
         return ret
 
