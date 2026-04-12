@@ -1,8 +1,12 @@
+from __future__ import annotations
 import numpy as np
 from typing import Any
 
-from src.ml.ops import *
-from src.ml.nn.activations import *
+from src.ml.ops import (
+    Array, ScalarLike, Neg, Add, Mul, Pow, MatMul, Exp, Log, Sum, Mean
+    )
+
+from src.ml.nn.activations import ReLU, Sigmoid, Tanh
 
 class Tensor:
     def __init__(self, data: np.typing.ArrayLike, requires_grad: bool = False) -> None:
@@ -31,9 +35,9 @@ class Tensor:
 
         return ret
 
-    def __add__(self, other: "Tensor | ScalarLike") -> "Tensor":
+    def __add__(self, other: Tensor | ScalarLike) -> Tensor:
         if not isinstance(other, Tensor):
-            other = Tensor([other])
+            other = Tensor(other)
 
         requires_grad = self.requires_grad or other.requires_grad
         ret = Tensor(Add.forward(self.data, other.data), requires_grad=requires_grad)
@@ -52,9 +56,9 @@ class Tensor:
         
         return ret
 
-    def __mul__(self, other: "Tensor | ScalarLike") -> "Tensor":
+    def __mul__(self, other: Tensor | ScalarLike) -> Tensor:
         if not isinstance(other, Tensor):
-            other = Tensor([other])
+            other = Tensor(other)
             
         requires_grad = self.requires_grad or other.requires_grad
         ret = Tensor(Mul.forward(self.data, other.data), requires_grad=requires_grad)
@@ -74,7 +78,7 @@ class Tensor:
 
         return ret
 
-    def __pow__(self, other: int) -> "Tensor":
+    def __pow__(self, other: int) -> Tensor:
         ret = Tensor(Pow.forward(self.data, other), requires_grad=self.requires_grad)
 
         if self.requires_grad:
@@ -90,7 +94,7 @@ class Tensor:
         
         return ret
 
-    def __matmul__(self, other: "Tensor") -> "Tensor":
+    def __matmul__(self, other: Tensor) -> Tensor:
         requires_grad = self.requires_grad or other.requires_grad
         ret = Tensor(MatMul.forward(self.data, other.data), requires_grad=requires_grad)
 
@@ -108,13 +112,13 @@ class Tensor:
         
         return ret
     
-    def __sub__(self, other: "Tensor | ScalarLike") -> "Tensor": return self + (-other)
-    def __truediv__(self, other: "Tensor | ScalarLike") -> "Tensor": return self * (other ** -1)
-    def __radd__(self, other: "Tensor | ScalarLike") -> "Tensor": return self + other
-    def __rsub__(self, other: "Tensor | ScalarLike") -> "Tensor": return other + (-self)
-    def __rmul__(self, other: "Tensor | ScalarLike") -> "Tensor": return self * other
+    def __sub__(self, other: Tensor | ScalarLike) -> Tensor: return self + (-other)
+    def __truediv__(self, other: Tensor | ScalarLike) -> Tensor: return self * (other ** -1)
+    def __radd__(self, other: Tensor | ScalarLike) -> Tensor: return self + other
+    def __rsub__(self, other: Tensor | ScalarLike) -> Tensor: return other + (-self)
+    def __rmul__(self, other: Tensor | ScalarLike) -> Tensor: return self * other
 
-    def exp(self, base: ScalarLike | None = None) -> "Tensor":
+    def exp(self, base: ScalarLike | None = None) -> Tensor:
         ret = Tensor(Exp.forward(self.data, base), requires_grad=self.requires_grad)
 
         if self.requires_grad:
@@ -130,7 +134,7 @@ class Tensor:
         
         return ret
 
-    def log(self, base: ScalarLike | None = None) -> "Tensor":
+    def log(self, base: ScalarLike | None = None) -> Tensor:
         ret = Tensor(Log.forward(self.data, base), requires_grad=self.requires_grad)
 
         if self.requires_grad:
@@ -146,7 +150,7 @@ class Tensor:
         
         return ret
 
-    def sum(self, axis: int | tuple[int, ...] | None = None) -> "Tensor":
+    def sum(self, axis: int | tuple[int, ...] | None = None) -> Tensor:
         ret = Tensor(Sum.forward(self.data, axis), requires_grad=self.requires_grad)
 
         if self.requires_grad:
@@ -161,7 +165,7 @@ class Tensor:
             ret._op = "sum"
         return ret
     
-    def mean(self, axis: int | tuple[int, ...] | None = None) -> "Tensor":
+    def mean(self, axis: int | tuple[int, ...] | None = None) -> Tensor:
         ret = Tensor(Mean.forward(self.data, axis), requires_grad=self.requires_grad)
 
         if self.requires_grad:
@@ -244,7 +248,7 @@ class Tensor:
         return self.data.size
 
     @property
-    def T(self) -> "Tensor":
+    def T(self) -> Tensor:
         ret = Tensor(self.data.T, requires_grad=self.requires_grad) # initialize if = None
 
         if self.requires_grad:
@@ -267,19 +271,3 @@ class Tensor:
     @grad.setter
     def grad(self, value: Array):     
         self._grad = value
-
-if __name__ == "__main__":
-    t1 = Tensor([1., 2.])
-    t2 = Tensor([3., -2])
-
-    print(t1 +(-t2))
-
-    t1 = Tensor([-1., 2., 3.], requires_grad=True)
-    t2 = t1.relu()
-    t2.sum().backward()
-    print(t1.grad)
-
-    t1 = Tensor([0.], requires_grad=True)
-    t2 = t1.sigmoid()
-    t2.sum().backward()
-    print(t1.grad)
