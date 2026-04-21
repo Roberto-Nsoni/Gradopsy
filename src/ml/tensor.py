@@ -20,8 +20,11 @@ class Tensor:
         self._op: str = ""
 
     def __repr__(self) -> str:
-        return str(self.data)
+        return f"Tensor(shape={self.shape})"
     
+    def __str__(self) -> str:
+        return f"Tensor({self.data})"
+
     def __neg__(self):
         ret = Tensor(Neg.forward(self.data), requires_grad=self.requires_grad)
 
@@ -271,3 +274,4 @@ class Tensor:
     @grad.setter
     def grad(self, value: Array):     
         self._grad = value
+
