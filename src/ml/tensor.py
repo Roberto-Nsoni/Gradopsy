@@ -3,10 +3,8 @@ import numpy as np
 from typing import Any
 
 from src.ml.ops import (
-    Array, ScalarLike, Neg, Add, Mul, Pow, MatMul, Exp, Log, Sum, Mean
+    Array, ScalarLike, Neg, Add, Mul, Pow, MatMul, Exp, Log, Sum, Mean, ReLU, Sigmoid, Tanh
     )
-
-from src.ml.nn.activations import ReLU, Sigmoid, Tanh
 
 class Tensor:
     def __init__(self, data: np.typing.ArrayLike, requires_grad: bool = False) -> None:

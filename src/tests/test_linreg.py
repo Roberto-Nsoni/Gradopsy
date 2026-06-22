@@ -3,6 +3,9 @@ import numpy as np
 from src.ml.tensor import Tensor
 from src.ml.nn.module import Linear
 
+N = 200   # number of samples
+P = 3     # number of features
+
 def calc_analytical_solution(X_np, y_np):
     W = np.linalg.inv(X_np.T @ X_np) @ X_np.T @ y_np
     return W.reshape(-1, 1)
@@ -41,18 +44,15 @@ def run_experiment(X_np, true_W, y_np):
     print("Analytical W:\n", analytical_W)
     print("Difference (analytical - learned):\n", analytical_W - learned_W)
 
-def main():
-    N = 200   # number of samples
-    P = 3     # number of features
+ 
 
-    # ---- Gaussian noise -----
-    print("\n" + "-" * 20 + " Gaussian noise " + "-" * 20)
+def test_linreg_gaussian():
     X = np.random.randn(N, P)
     W = np.random.randn(P, 1)
     y = X @ W + 0.1 * np.random.randn(N, 1)
     run_experiment(X, W, y)
 
-    # ---- Scaled -----
+def test_linreg_scaled():
     print("\n" + "-" * 20 + " Scaled " + "-" * 20)
     X = np.random.randn(N, P)
     X = X * np.array([1, 10, 100])
@@ -60,7 +60,7 @@ def main():
     y = X @ W + 0.2 * np.random.randn(N, 1)
     run_experiment(X, W, y)
 
-    # ---- Collinear -----
+def test_linreg_colinear():
     print("\n" + "-" * 20 + " Collinear " + "-" * 20)
     X_base = np.random.randn(N, 1)
     X = np.hstack([
@@ -72,7 +72,7 @@ def main():
     y = X @ W + 0.2 * np.random.randn(N, 1)
     run_experiment(X, W, y)
 
-    # ---- Outliers -----
+def test_linreg_outliers():
     print("\n" + "-" * 20 + " Outliers " + "-" * 20)
     X = np.random.randn(N, P)
     W = np.random.randn(P, 1)
@@ -81,7 +81,7 @@ def main():
     y[outliers] += 20 * np.random.randn(5, 1)
     run_experiment(X, W, y)
 
-    # ---- Non-linear -----
+def test_linreg_nonlinear():
     print("\n" + "-" * 20 + " Non-linear " + "-" * 20)
     X = np.random.randn(N, P)
     W = np.random.randn(P, 1)
@@ -92,7 +92,3 @@ def main():
         + 0.3 * np.random.randn(N, 1)
     )
     run_experiment(X, W, y)
-
-
-if __name__ == "__main__":
-    main()

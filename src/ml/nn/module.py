@@ -4,7 +4,6 @@ from typing import Any, Iterator
 from src.ml.tensor import Tensor
 
 
-
 class Module:
     def __init__(self) -> None:
         self._parameters: dict[str, Tensor] = {}
@@ -26,6 +25,14 @@ class Module:
 
         elif isinstance(value, Module):
             self._modules[name] = value
+
+    def __repr__(self) -> str:
+        lines: list[str] = []
+
+        for name, module in self._modules.items():
+            lines.append(f"({name}): {module}")
+
+        return "\n".join(lines)
 
     def __call__(self, *args: Any, **kwds: Any) -> Any:
         return self.forward(*args, **kwds)
@@ -71,6 +78,20 @@ class Linear(Module):
         if self.b is not None:
             ret = ret + self.b
         return ret
+
+class Sequential(Module):
+    """Defines a chain of Modules"""
+
+    def __init__(self, *modules: Module) -> None:
+        super().__init__()
+
+        for i, module in enumerate(modules):
+            setattr(self, str(i), module)
+
+    def forward(self, x: Tensor) -> Tensor:
+        for module in self._modules.values():
+            x = module(x)
+        return x
 
 if __name__ == "__main__":
 
