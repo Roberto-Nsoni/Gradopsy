@@ -1,0 +1,175 @@
+/* Daylight Section — the world.
+   A section cut through a problem, with a band of light moving across it for time.
+   Limewash ground, poche mass, one sunbeam that is always the active moment. */
+
+@font-face {
+  font-family: "Archivo";
+  src: url("/fonts/archivo-var.woff2") format("woff2-variations");
+  font-weight: 100 900;
+  font-stretch: 62% 125%;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Archivo";
+  src: url("/fonts/archivo-italic-var.woff2") format("woff2-variations");
+  font-weight: 100 900;
+  font-stretch: 62% 125%;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Martian Mono";
+  src: url("/fonts/martian-mono-var.woff2") format("woff2-variations");
+  font-weight: 100 800;
+  font-stretch: 75% 112%;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  /* Palette, taken from the world's own board */
+  --limewash: #f2efea;
+  --limewash-deep: #e7e2d9;
+  --poche: #1c1f22;
+  --sunbeam: #d6a43a;
+  --sunbeam-deep: #b8862a;
+  --shadow-blue: #5b6b7c;
+  --stone: #a8a39a;
+  --stone-deep: #6f6a61;
+
+  --rule: #c8c2b6;          /* separador decorativo */
+  --rule-strong: #8b8578;   /* 3.20:1 — lo que necesita el borde de un control */
+  --sunbeam-text: #8a6210;  /* 4.77:1 — el oro de relleno no es legible como texto */
+
+  /* The section is drawn, so the type is drawn too: inclined, condensed, tracked */
+  --face: "Archivo", "Helvetica Neue", Arial, sans-serif;
+  --measured: "Martian Mono", ui-monospace, Menlo, Consolas, monospace;
+
+  --slant: italic;
+  --gutter: clamp(16px, 3vw, 40px);
+  --rhythm: clamp(56px, 8vw, 132px);
+
+  color-scheme: light;
+  accent-color: var(--sunbeam-deep);
+  scrollbar-color: var(--stone) var(--limewash-deep);
+}
+
+* { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  margin: 0;
+  background: var(--limewash);
+  color: var(--poche);
+  font-family: var(--face);
+  font-size: 16px;
+  line-height: 1.55;
+  font-synthesis: none;
+  caret-color: var(--sunbeam-deep);
+}
+
+/* The surfaces the browser draws still belong to the drawing. */
+::selection { background: var(--sunbeam); color: var(--poche); }
+::-webkit-scrollbar { width: 12px; height: 12px; }
+::-webkit-scrollbar-track { background: var(--limewash-deep); }
+::-webkit-scrollbar-thumb { background: var(--stone); border: 3px solid var(--limewash-deep); }
+::-webkit-scrollbar-thumb:hover { background: var(--stone-deep); }
+
+:focus-visible {
+  outline: 2px solid var(--sunbeam-deep);
+  outline-offset: 3px;
+}
+
+/* ---------- type roles ---------- */
+
+/* Display: inclined, condensed, set at drawing scale. The scale jump is the point. */
+.display {
+  font-style: var(--slant);
+  font-weight: 600;
+  font-stretch: 70%;
+  font-size: clamp(3.2rem, 11vw, 9.5rem);
+  line-height: 0.86;
+  letter-spacing: 0.005em;
+  margin: 0;
+  text-transform: uppercase;
+}
+
+.headline {
+  font-style: var(--slant);
+  font-weight: 600;
+  font-stretch: 74%;
+  font-size: clamp(1.9rem, 4.2vw, 3.4rem);
+  line-height: 0.95;
+  letter-spacing: 0.01em;
+  margin: 0;
+  text-transform: uppercase;
+}
+
+/* Prose is inclined too: this is a drawing, and its notes are written by hand. */
+.prose {
+  font-style: var(--slant);
+  font-weight: 400;
+  font-stretch: 96%;
+  font-size: clamp(0.98rem, 1.15vw, 1.12rem);
+  line-height: 1.62;
+  max-width: 52ch;
+  margin: 0;
+}
+
+/* Overline: the label on a drawing. Roman, because a label is printed, not written. */
+.overline {
+  font-style: normal;
+  font-weight: 600;
+  font-stretch: 88%;
+  font-size: 0.6875rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--stone-deep);
+  margin: 0;
+}
+
+/* Every number that can change is measured, and measured numbers do not reflow. */
+.measured {
+  font-family: var(--measured);
+  font-variant-numeric: tabular-nums;
+  font-weight: 500;
+  font-stretch: 87%;
+  letter-spacing: -0.02em;
+}
+
+/* ---------- primitives ---------- */
+
+.btn {
+  font-family: var(--face);
+  font-style: normal;
+  font-weight: 600;
+  font-stretch: 88%;
+  font-size: 0.75rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  padding: 14px 22px;
+  border: 1px solid var(--poche);
+  background: transparent;
+  color: var(--poche);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+  clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+}
+.btn:hover { background: var(--poche); color: var(--limewash); }
+
+.btn-sun {
+  background: var(--sunbeam);
+  border-color: var(--sunbeam);
+  color: var(--poche);
+}
+.btn-sun:hover { background: var(--sunbeam-deep); border-color: var(--sunbeam-deep); color: var(--poche); }
+
+/* A rule is how this system separates things. Never a shadow. */
+.rule { border: 0; border-top: 1px solid var(--rule); margin: 0; }
+
+a { color: inherit; }

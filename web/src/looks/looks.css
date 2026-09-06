@@ -1,0 +1,123 @@
+/* The phosphor screen. One world now, so the file is only about the chassis around it. */
+
+.look {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  background: var(--ground);
+  color: var(--ink);
+  font-family: "Archivo", "Helvetica Neue", Arial, sans-serif;
+  font-style: normal;
+  /* dragging an observation used to sweep a text selection across the headline, because the
+     pointer is over a canvas that sits under real DOM type */
+  user-select: none;
+  -webkit-user-select: none;
+}
+.look-lede { user-select: text; -webkit-user-select: text; }
+
+.look-canvas { position: absolute; display: block; }
+
+.look-head,
+.look-say,
+.look-foot { position: absolute; z-index: 2; }
+
+.look-head {
+  top: 0; left: 0; right: 0;
+  display: flex; align-items: baseline; justify-content: space-between;
+  gap: 24px; padding: 26px clamp(20px, 4vw, 54px);
+}
+.look-mark {
+  font-weight: 700; font-stretch: 74%; font-size: 1.35rem;
+  letter-spacing: 0.1em; text-transform: uppercase; text-decoration: none; color: var(--ink);
+}
+.look-nav { display: flex; align-items: baseline; gap: clamp(14px, 2vw, 28px); }
+.look-nav a {
+  font-size: 0.72rem; letter-spacing: 0.18em; text-transform: uppercase;
+  text-decoration: none; color: var(--quiet); padding-bottom: 4px;
+  border-bottom: 1px solid transparent;
+}
+.look-nav a:hover { color: var(--ink); border-bottom-color: var(--accent); }
+
+/* The type sits in a panel cut out of the screen, the way a bezel masks a corner of the tube. */
+.look-say {
+  left: clamp(20px, 4vw, 54px);
+  top: 50%; transform: translateY(-50%);
+  max-width: min(30ch, 46vw);
+  padding: clamp(26px, 2.6vw, 38px) clamp(28px, 2.8vw, 42px);
+  background: rgba(6, 13, 9, 0.82);
+  border: 1px solid rgba(125, 255, 190, 0.22);
+  box-shadow: inset 0 0 0 1px rgba(6, 13, 9, 0.9);
+}
+.look-title {
+  margin: 0 0 20px;
+  font-weight: 700; font-stretch: 76%;
+  font-size: clamp(2.4rem, 5.2vw, 4.6rem);
+  line-height: 0.92; letter-spacing: -0.005em; text-transform: uppercase;
+  color: var(--ink);
+}
+.look-lede {
+  margin: 0; max-width: 42ch;
+  font-size: clamp(0.95rem, 1.05vw, 1.06rem); line-height: 1.6;
+  color: #a9c9bb;
+}
+
+.look-acts { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 26px; }
+.look-act {
+  font-size: 0.72rem; letter-spacing: 0.18em; text-transform: uppercase; font-weight: 600;
+  text-decoration: none; padding: 13px 20px;
+  color: var(--ground); background: var(--accent); border: 1px solid var(--accent);
+}
+.look-act:hover { background: var(--ink); border-color: var(--ink); }
+.look-act-quiet { background: transparent; color: var(--ink); border-color: rgba(125, 255, 190, 0.4); }
+.look-act-quiet:hover { background: transparent; border-color: var(--ink); }
+
+.look-foot {
+  left: 0; right: 0; bottom: 0;
+  padding: 0 clamp(20px, 4vw, 54px) 22px;
+  display: grid; gap: 10px;
+}
+.look-band {
+  display: flex; flex-wrap: wrap; gap: clamp(22px, 3.4vw, 52px);
+  padding-top: 14px; border-top: 1px solid rgba(125, 255, 190, 0.22);
+  font-family: "Martian Mono", ui-monospace, Menlo, monospace;
+  font-size: clamp(0.95rem, 1.4vw, 1.2rem); font-weight: 600;
+  font-variant-numeric: tabular-nums; letter-spacing: -0.02em;
+}
+.look-band span { display: grid; gap: 3px; }
+.look-band i {
+  font-family: "Archivo", sans-serif; font-style: normal; font-weight: 600;
+  font-size: 0.6rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--quiet);
+}
+.look-name { margin: 0; font-size: 0.68rem; letter-spacing: 0.14em; color: var(--quiet); }
+.look-name a { color: var(--quiet); text-decoration: none; text-transform: uppercase; }
+.look-name a:hover { color: var(--ink); }
+
+@media (max-width: 900px) {
+  .look-say {
+    left: clamp(16px, 4vw, 54px); right: clamp(16px, 4vw, 54px);
+    top: auto; bottom: 28vh; transform: none; max-width: none;
+  }
+  .look-band { font-size: 0.9rem; gap: 20px; }
+}
+
+/* ---- the index of choreographies ---- */
+
+.looks-index {
+  max-width: 780px; margin: 0 auto; padding: clamp(40px, 8vw, 96px) 24px 80px;
+  font-family: "Archivo", sans-serif; background: #060d09; color: #cfeadd; min-height: 100vh;
+}
+.looks-index h1 {
+  font-weight: 700; font-stretch: 74%; text-transform: uppercase; letter-spacing: 0.02em;
+  font-size: clamp(2rem, 4.6vw, 3.2rem); line-height: 0.95; margin: 0 0 14px; color: #7dffbe;
+}
+.looks-index > p { color: #74a793; max-width: 56ch; margin: 0 0 34px; line-height: 1.6; }
+.looks-index ol { list-style: none; margin: 0; padding: 0; }
+.looks-index li { border-top: 1px solid rgba(125, 255, 190, 0.16); }
+.looks-index li:last-child { border-bottom: 1px solid rgba(125, 255, 190, 0.16); }
+.looks-index a { display: grid; gap: 6px; padding: 18px 0; text-decoration: none; color: inherit; }
+.looks-index a:hover b { color: #c9ff4a; }
+.looks-index b {
+  font-weight: 700; font-stretch: 78%; text-transform: uppercase; letter-spacing: 0.04em;
+  font-size: clamp(1.1rem, 2.2vw, 1.5rem); color: #7dffbe;
+}
+.looks-index span { color: #8fb7a6; line-height: 1.5; }

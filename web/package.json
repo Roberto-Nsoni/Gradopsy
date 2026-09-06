@@ -1,0 +1,21 @@
+{
+  "name": "visualml-web",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "wheel": "cd .. && uv build --wheel && cp dist/visualml-*.whl web/public/ && basename $(ls -t dist/visualml-*.whl | head -1) > web/public/wheel.txt",
+    "predev": "npm run wheel",
+    "prebuild": "npm run wheel",
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.3.4",
+    "vite": "^6.0.7"
+  }
+}

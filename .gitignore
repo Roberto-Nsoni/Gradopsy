@@ -12,3 +12,5 @@ node_modules/
 *.gif
 *.md
 !README.md
+.claude/
+.impeccable/
