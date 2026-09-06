@@ -5,3 +5,10 @@ __pycache__
 *.ipynb
 .coverage
 .vscode
+*.egg-info/
+build/
+dist/
+node_modules/
+*.gif
+*.md
+!README.md

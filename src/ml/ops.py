@@ -17,6 +17,9 @@ def reduce_grad(grad: Array, shape: tuple[int, ...]) -> Array:
 
     return grad
 
+
+# --- Operation functions ---
+
 class Neg:
     @staticmethod
     def forward(a: Array) -> Array:
@@ -170,3 +173,47 @@ class Tanh:
         tanh = ctx["tanh"] # reuse forward calc for efficiency
         grad = ret_grad * (1 - tanh * tanh)
         return grad
+
+# --- Loss functions ---
+
+class Softmax:
+    @staticmethod
+    def forward(a: Array, axis: int = -1) -> Array:
+        e = np.exp(a - a.max(axis=axis, keepdims=True)) # shift by the max so exp() can't overflow
+        return e / e.sum(axis=axis, keepdims=True)
+
+class CrossEntropy:
+    """
+    Cross-entropy over the logits z, fused with the softmax:
+        L = 1/n * sum[-z_y + ln(sum_j exp(z_j))]
+    """
+    @staticmethod
+    def forward(z: Array, y: Array) -> Array:
+        n = z.shape[0]
+        zmax = z.max(axis=1, keepdims=True)
+        logsumexp = zmax + np.log(np.exp(z - zmax).sum(axis=1, keepdims=True))
+        return (logsumexp - z[np.arange(n), y][:, None]).mean(keepdims=True)
+
+    @staticmethod
+    def backward(ctx: dict[str, Any], ret_grad: Array) -> Array:
+        z, y = ctx["z"], ctx["y"]
+        n = z.shape[0]
+
+        grad = Softmax.forward(z)      # d/dz = softmax(z) - onehot(y)
+        grad[np.arange(n), y] -= 1
+
+        return ret_grad * grad / n
+
+class BCEWithLogits:
+    """
+    Binary cross-entropy over the logit z, in the stable form:
+        L = 1/n * sum[max(z, 0) - z*y + ln(1 + exp(-|z|))]
+    """
+    @staticmethod
+    def forward(z: Array, y: Array) -> Array:
+        return (np.maximum(z, 0) - z * y + np.log1p(np.exp(-np.abs(z)))).mean(keepdims=True)
+
+    @staticmethod
+    def backward(ctx: dict[str, Any], ret_grad: Array) -> Array:
+        z, y = ctx["z"], ctx["y"]
+        return ret_grad * (Sigmoid.forward(z) - y) / z.size

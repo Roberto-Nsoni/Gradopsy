@@ -1,7 +1,7 @@
 import numpy as np
 from typing import Any, Iterator
 
-from src.ml.tensor import Tensor
+from ml.tensor import Tensor
 
 
 class Module:
@@ -54,6 +54,17 @@ class Module:
     def forward(self, *args: Any, **kwds: Any) -> Tensor:
         raise NotImplementedError
 
+    def save(self, path: str) -> None:
+        """Writes {parameter name: array} to an .npz, so a trained model survives the session."""
+        np.savez(path, **{name: p.data for name, p in self.parameters(include_non_trainable=True)})
+
+    def load(self, path: str) -> None:
+        """Reads it back into a model built with the same architecture."""
+        saved = np.load(path)
+
+        for name, p in self.parameters(include_non_trainable=True):
+            p.data = saved[name]
+
 
 class Linear(Module):
     """
@@ -92,6 +103,21 @@ class Sequential(Module):
         for module in self._modules.values():
             x = module(x)
         return x
+
+class MLP(Sequential):
+    """
+    Defines a Multi-Layer Perceptron: layers = [in, hidden1, hidden2, ..., out].
+    No activation after the last layer, so the output are the raw logits.
+    """
+    def __init__(self, layers: list[int], activation: type[Module], bias: bool = True):
+        chain: list[Module] = []
+
+        for i in range(len(layers) - 1):
+            chain.append(Linear(layers[i], layers[i+1], bias=bias))
+            if i < len(layers) - 2:
+                chain.append(activation())
+
+        super().__init__(*chain)
 
 if __name__ == "__main__":
 

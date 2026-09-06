@@ -1,5 +1,5 @@
-from src.ml.tensor import Tensor
-from src.ml.nn.module import Module
+from ml.tensor import Tensor
+from ml.nn.module import Module
 
 class Sigmoid(Module):
     def forward(self, x: Tensor) -> Tensor:

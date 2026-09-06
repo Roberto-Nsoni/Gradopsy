@@ -2,13 +2,13 @@ from __future__ import annotations
 import numpy as np
 from typing import Any
 
-from src.ml.ops import (
+from ml.ops import (
     Array, ScalarLike, Neg, Add, Mul, Pow, MatMul, Exp, Log, Sum, Mean, ReLU, Sigmoid, Tanh
     )
 
 class Tensor:
     def __init__(self, data: np.typing.ArrayLike, requires_grad: bool = False) -> None:
-        self.data: Array = np.array(data)
+        self.data: Array = np.asarray(data, dtype=np.float64)
 
         self.requires_grad = requires_grad
         self._grad: Array | None = None
@@ -273,3 +273,5 @@ class Tensor:
     def grad(self, value: Array):     
         self._grad = value
 
+if __name__ == "__main__":
+    print("OK")

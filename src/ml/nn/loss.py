@@ -1,4 +1,5 @@
-from src.ml.tensor import Tensor
+from ml.tensor import Tensor
+from ml.ops import CrossEntropy, BCEWithLogits
 
 class Loss:
     def __call__(self, y_pred: Tensor, y_true: Tensor) -> Tensor:
@@ -15,17 +16,52 @@ class MSE(Loss):
     """
     def forward(self, y_pred: Tensor, y_true: Tensor) -> Tensor:
         return ((y_pred - y_true) ** 2).mean()
-    
-class BCE(Loss):
-    """
-    Implements the Binary Cross-Entropy:
-        - 1/n * sum[y * ln(hat(y)) + (1 - y) * ln(1 - hat(y))]
-    """
-    def __init__(self, eps: float = 1e-8) -> None:
-        self.eps = eps
 
+
+class CrossEntropyFromLogits(Loss):
+    """
+    Implements the multiclass Cross-Entropy taking the logits z (no Softmax layer before it):
+        1/n * sum[-z_y + ln(sum_j exp(z_j))]
+    Fused: the node is built by hand so the softmax stays out of the graph.
+    """
     def forward(self, y_pred: Tensor, y_true: Tensor) -> Tensor:
+        z = y_pred.data
+        y = y_true.data.astype(int).reshape(-1)     # labels can come as (n,) or (n, 1)
 
-        y_pred = y_pred + self.eps
+        ret = Tensor(CrossEntropy.forward(z, y), requires_grad=y_pred.requires_grad)
 
-        return -(y_true * y_pred.log() + (1 - y_true)*(1 - y_pred).log()).mean()
+        if y_pred.requires_grad:
+            ctx = {"z": z, "y": y}
+
+            def _backward():
+                y_pred.grad += CrossEntropy.backward(ctx, ret.grad)
+
+            ret._prev = {y_pred}
+            ret._backward = _backward
+            ret._op = "cross_entropy"
+
+        return ret
+
+
+class BCEWithLogitsLoss(Loss):
+    """
+    Implements the Binary Cross-Entropy taking the logit z:
+        1/n * sum[max(z, 0) - z*y + ln(1 + exp(-|z|))]
+    Same trick as the Cross-Entropy: fused so ln(1 - hat(y)) never blows up.
+    """
+    def forward(self, y_pred: Tensor, y_true: Tensor) -> Tensor:
+        z, y = y_pred.data, y_true.data.reshape(y_pred.shape)
+
+        ret = Tensor(BCEWithLogits.forward(z, y), requires_grad=y_pred.requires_grad)
+
+        if y_pred.requires_grad:
+            ctx = {"z": z, "y": y}
+
+            def _backward():
+                y_pred.grad += BCEWithLogits.backward(ctx, ret.grad)
+
+            ret._prev = {y_pred}
+            ret._backward = _backward
+            ret._op = "bce_with_logits"
+
+        return ret
