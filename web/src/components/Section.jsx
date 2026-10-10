@@ -68,7 +68,7 @@ const toPixel = (size) => (x, y) => [((x + 1) / 2) * size, size - ((y + 1) / 2) 
 
 /**
  * The classified plane, drawn as a cut section: solid material where the model is sure, bare
- * limewash where it is not, with the observations laid on top.
+ * the unlit tube where it is not, with the observations laid on top.
  */
 export function FieldCanvas({ run, frameIndex, points, labels, size, onPick, hint }) {
   const ref = useRef(null);
@@ -77,7 +77,7 @@ export function FieldCanvas({ run, frameIndex, points, labels, size, onPick, hin
     if (!ref.current || !size) return;
     const ctx = fitCanvas(ref.current, size, size);
 
-    ctx.fillStyle = INK.limewash;
+    ctx.fillStyle = INK.ground;
     ctx.fillRect(0, 0, size, size);
 
     if (run) {
@@ -112,7 +112,7 @@ export function FieldCanvas({ run, frameIndex, points, labels, size, onPick, hin
 
 /**
  * Two series against training step, drawn as the section's own line work. The head of each
- * line is the present moment, so it carries the sunbeam.
+ * line is the present moment, so it carries the strike.
  */
 export function Curves({ series, step, width, height = 170, logY = false }) {
   const ref = useRef(null);
@@ -135,14 +135,14 @@ export function Curves({ series, step, width, height = 170, logY = false }) {
     const toY = (v) => pad.t + h - ((scale(v) - lo) / (hi - lo || 1)) * h;
     const toX = (i, n) => pad.l + (i / Math.max(n - 1, 1)) * w;
 
-    ctx.strokeStyle = INK.rule;
+    ctx.strokeStyle = INK.graticule;
     ctx.lineWidth = 1;
     ctx.beginPath();
     ctx.moveTo(pad.l, pad.t); ctx.lineTo(pad.l, pad.t + h); ctx.lineTo(pad.l + w, pad.t + h);
     ctx.stroke();
 
     // Flush against the axis they belong to, not floating forty pixels off it
-    ctx.fillStyle = INK.stoneDeep;
+    ctx.fillStyle = INK.prose;
     ctx.font = "500 10px 'Martian Mono', ui-monospace, monospace";
     ctx.textAlign = "right";
     ctx.textBaseline = "middle";
@@ -167,9 +167,9 @@ export function Curves({ series, step, width, height = 170, logY = false }) {
       const [hx, hy] = [toX(upTo, values.length), toY(values[upTo])];
       ctx.beginPath();
       ctx.arc(hx, hy, 3.2, 0, 2 * Math.PI);
-      ctx.fillStyle = INK.sunbeam;
+      ctx.fillStyle = INK.accent;
       ctx.fill();
-      ctx.strokeStyle = INK.poche;
+      ctx.strokeStyle = INK.ink;
       ctx.lineWidth = 1;
       ctx.stroke();
     }

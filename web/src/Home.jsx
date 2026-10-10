@@ -1,3 +1,11 @@
+/*
+ * The Daylight Section home page. No longer routed: the cover took the front door.
+ *
+ * Kept because it is the only place three pieces of real evidence are written down — the test
+ * count, the engine's line count, and the plain statement that nothing underneath is borrowed.
+ * None of that belongs on the cover, and none of it should be lost while the rest of the site
+ * is converted. Delete this file once that evidence has a surface of its own.
+ */
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import { boundaryRun, descentRun, lensesRun, overfitRun, preset, presetCurve, surfaceInfo } from "./engine";
@@ -182,11 +190,11 @@ function Still({ still }) {
     const h = Math.round(size * 0.78);
     const ctx = fitCanvas(node.current, size, h);
 
-    ctx.fillStyle = INK.limewashDeep;
+    ctx.fillStyle = INK.raised;
     ctx.fillRect(0, 0, size, h);
 
     if (!still) {
-      ctx.strokeStyle = INK.rule;
+      ctx.strokeStyle = INK.graticule;
       ctx.setLineDash([4, 5]);
       ctx.strokeRect(8.5, 8.5, size - 17, h - 17);
       ctx.setLineDash([]);
@@ -214,7 +222,7 @@ function Still({ still }) {
                           step: Infinity, size: square, labelled: false });
     } else {
       const { run, data } = still;
-      ctx.fillStyle = INK.limewash;
+      ctx.fillStyle = INK.ground;
       ctx.fillRect(0, 0, square, square);
       const at = (x, y) => [((x + 1) / 2) * square, square - ((y + 1.15) / 2.3) * square];
       const n = run.curve_n;
@@ -225,14 +233,14 @@ function Still({ still }) {
         const [px, py] = at(-1 + (2 * k) / (n - 1), run.curve[last + k]);
         k === 0 ? ctx.moveTo(px, py) : ctx.lineTo(px, py);
       }
-      ctx.strokeStyle = INK.poche;
+      ctx.strokeStyle = INK.ink;
       ctx.lineWidth = 2;
       ctx.stroke();
 
       data.points.forEach(([x, y]) => {
         const [px, py] = at(x, y);
         ctx.beginPath(); ctx.arc(px, py, 3, 0, 2 * Math.PI);
-        ctx.fillStyle = INK.sunbeamDeep; ctx.fill();
+        ctx.fillStyle = INK.accent; ctx.fill();
       });
     }
 

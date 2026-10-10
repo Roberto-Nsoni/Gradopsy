@@ -82,16 +82,16 @@ export default function Lenses() {
 
 /**
  * The loss over the plane the run actually travelled, with the path drawn on it. Behind the head
- * the path is shadow; the head itself is the present moment and carries the sunbeam.
+ * the path is dim; the head itself is the present moment and carries the strike.
  */
 export function paintLandscape(ctx, { run, frameIndex, size }) {
-  ctx.fillStyle = INK.limewash;
+  ctx.fillStyle = INK.ground;
   ctx.fillRect(0, 0, size, size);
 
   // The plane cannot choose its own axes until the whole trajectory exists, so for the length
   // of the training this plate has nothing yet. It says so, the way an unfinished plate does.
   if (!run?.surface) {
-    ctx.strokeStyle = INK.rule;
+    ctx.strokeStyle = INK.graticule;
     ctx.setLineDash([4, 5]);
     ctx.strokeRect(8.5, 8.5, size - 17, size - 17);
     ctx.setLineDash([]);
@@ -110,7 +110,7 @@ export function paintLandscape(ctx, { run, frameIndex, size }) {
     const [px, py] = toPixel(a, b);
     i === 0 ? ctx.moveTo(px, py) : ctx.lineTo(px, py);
   });
-  ctx.strokeStyle = INK.shadowBlue;
+  ctx.strokeStyle = INK.fieldB;
   ctx.lineWidth = 2;
   ctx.lineJoin = "round";
   ctx.stroke();
@@ -118,9 +118,9 @@ export function paintLandscape(ctx, { run, frameIndex, size }) {
   const [hx, hy] = toPixel(...run.path[upTo]);
   ctx.beginPath();
   ctx.arc(hx, hy, 5, 0, 2 * Math.PI);
-  ctx.fillStyle = INK.sunbeam;
+  ctx.fillStyle = INK.accent;
   ctx.fill();
-  ctx.strokeStyle = INK.poche;
+  ctx.strokeStyle = INK.ink;
   ctx.lineWidth = 1.4;
   ctx.stroke();
 

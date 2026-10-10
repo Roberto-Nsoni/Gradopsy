@@ -1,6 +1,6 @@
 // The signature. In the world this is a band of light travelling across a section to say what
 // hour it is; here it says which training step you are looking at. Everything behind the head
-// has happened, the head itself is the sunbeam, and nothing ahead is drawn yet.
+// has happened, the head itself is the strike, and nothing ahead is drawn yet.
 
 const PLAY = "M4 2l9 6-9 6z";
 const PAUSE = "M4 2h3v12H4zm5 0h3v12H9z";
@@ -32,7 +32,7 @@ export default function Scrubber({ step, setStep, total, playing, setPlaying, la
 
       <div className="scrub-band">
         <div className="scrub-track">
-          {/* Three states on one band: bare track is a step that does not exist yet, stone is
+          {/* Three states on one band: bare track is a step that does not exist yet, low phosphor is
               computed and waiting, gold is the part you have watched. While a run streams the
               track darkens ahead of the playhead, which is the honest picture of what the tab
               is doing — no spinner needed, because the progress is the drawing. */}

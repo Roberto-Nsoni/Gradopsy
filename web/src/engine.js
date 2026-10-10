@@ -40,8 +40,10 @@ export function boot(onProgress) {
     const micropip = pyodide.pyimport("micropip");
 
     // The full wheel filename matters: micropip rejects anything that is not PEP 427
-    const wheel = (await (await fetch("wheel.txt")).text()).trim();
-    await micropip.install(new URL(wheel, window.location.href).href);
+    // from the site's root, not the page's path: relative to `/look/wave` it would miss
+    const root = new URL(import.meta.env.BASE_URL, window.location.origin);
+    const wheel = (await (await fetch(new URL("wheel.txt", root))).text()).trim();
+    await micropip.install(new URL(wheel, root).href);
 
     pyodide.runPython(enginePy);
     onProgress?.("ready");
@@ -166,3 +168,33 @@ function unwrapBytes(raw) {
 
   return bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength);
 }
+
+/**
+ * The playground: one network the visitor builds. The page owns the data and the loop; the
+ * engine owns the model, its optimizer and a history of parameter vectors that any moment of the
+ * run can be re-rendered from.
+ */
+export const pgDataset = (kind, n, noise, classes, seed) =>
+  unwrap(call("pg_dataset", kind, n, noise, classes, seed));
+
+export const pgOpen = (key, spec) => unwrap(call("pg_open", key, spec));
+
+export const pgData = (key, points, labels, test) => call("pg_data", key, points, labels, test);
+
+export const pgSet = (key, spec) => call("pg_set", key, spec);
+
+export const pgAdvance = (key, budgetMs, maxSteps = 0, rules = null, maxEpochs = 0) =>
+  unwrap(call("pg_advance", key, budgetMs, maxSteps, rules, maxEpochs), { field: "u8", confidence: "u8" });
+
+export const pgWatch = (key) => call("pg_watch", key);
+
+export const pgView = (key, idx, n, withField = false) =>
+  unwrap(call("pg_view", key, idx, n, withField), { acts: "f32", field: "u8", confidence: "u8" });
+
+export const pgEmbed = (key, idx) => unwrap(call("pg_embed", key, idx));
+
+export const pgProbe = (key, idx, x, y) => unwrap(call("pg_probe", key, idx, x, y));
+
+export const pgRewind = (key, idx) => unwrap(call("pg_rewind", key, idx));
+
+export const pgClose = (key) => call("pg_close", key);

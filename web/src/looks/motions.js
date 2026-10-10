@@ -228,7 +228,15 @@ const billiards = {
  * win, and the balls spend the first half-minute arranging the problem into one it can. Watching
  * that happen is the piece; a screen that opens already sorted has nothing in it.
  */
-const G = 0.24;                  // the pull
+/*
+ * The pull, and the one number in this choreography that does not set the bounce height.
+ *
+ * The height is written as a height: the pace is the floor speed that reaches three quarters of
+ * the way up, sqrt(3·G·ey), and the apex that buys is 3·G·ey / 2G — G cancels out of it. So the
+ * pull is free to set how *slowly* the rack bounces without touching how high. Measured at 0.24
+ * and at 0.17, the apex is 75% of the screen either way; the period goes from 5.1 seconds to 6.1.
+ */
+const G = 0.17;
 
 /**
  * Which lane each observation opens in: evenly spaced across the floor, shuffled, and even.

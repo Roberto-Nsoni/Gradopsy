@@ -211,7 +211,7 @@ function draw(node, size, state, out, labels) {
   if (!node) return;
   const ctx = fitCanvas(node, size, size);
 
-  ctx.fillStyle = INK.limewash;
+  ctx.fillStyle = INK.ground;
   ctx.fillRect(0, 0, size, size);
   paintField(ctx, { field: out.field, confidence: out.confidence, n: GRID, offset: 0 },
              size, CLASSES);

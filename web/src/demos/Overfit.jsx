@@ -87,13 +87,13 @@ export default function Overfit() {
               width={asideWidth || 300} height={Math.max(180, Math.round((asideWidth || 300) * 0.62))} logY
               step={at}
               series={[
-                { values: run?.train_loss ?? [], colour: INK.poche },
-                { values: run?.test_loss ?? [], colour: INK.sunbeamDeep, dash: [4, 3] },
+                { values: run?.train_loss ?? [], colour: INK.ink },
+                { values: run?.test_loss ?? [], colour: INK.accent, dash: [4, 3] },
               ]}
             />
             <Legend items={[
-              { label: "on data it fitted", colour: INK.poche },
-              { label: "on data it never saw", colour: INK.sunbeamDeep, dash: true },
+              { label: "on data it fitted", colour: INK.ink },
+              { label: "on data it never saw", colour: INK.accent, dash: true },
             ]} />
             <p className="prose control-note">
               When the dashed line turns back up while the solid one keeps falling, the network has
@@ -114,11 +114,11 @@ function CurvePlate({ run, frameIndex, data, width, height, onPick }) {
     const ctx = fitCanvas(ref.current, width, height);
     const at = toPixel(width, height);
 
-    ctx.fillStyle = INK.limewash;
+    ctx.fillStyle = INK.ground;
     ctx.fillRect(0, 0, width, height);
 
     // A ruled ground, the way a drawing carries its own graticule
-    ctx.strokeStyle = INK.limewashDeep;
+    ctx.strokeStyle = INK.raised;
     ctx.lineWidth = 1;
     for (let i = 1; i < 8; i++) {
       const y = (i / 8) * height;
@@ -133,7 +133,7 @@ function CurvePlate({ run, frameIndex, data, width, height, onPick }) {
         const [px, py] = at(-1 + (2 * k) / (n - 1), run.curve[i * n + k]);
         k === 0 ? ctx.moveTo(px, py) : ctx.lineTo(px, py);
       }
-      ctx.strokeStyle = INK.poche;
+      ctx.strokeStyle = INK.ink;
       ctx.lineWidth = 2.2;
       ctx.lineJoin = "round";
       ctx.stroke();
@@ -146,16 +146,16 @@ function CurvePlate({ run, frameIndex, data, width, height, onPick }) {
 
       ctx.beginPath();
       ctx.arc(px, py, 5, 0, 2 * Math.PI);
-      ctx.fillStyle = INK.limewash;
+      ctx.fillStyle = INK.ground;
       ctx.fill();
 
       ctx.beginPath();
       ctx.arc(px, py, fitted ? 3.6 : 4.6, 0, 2 * Math.PI);
       if (fitted) {
-        ctx.fillStyle = INK.poche;
+        ctx.fillStyle = INK.ink;
         ctx.fill();
       } else {
-        ctx.strokeStyle = INK.sunbeamDeep;
+        ctx.strokeStyle = INK.accent;
         ctx.lineWidth = 2;
         ctx.stroke();
       }

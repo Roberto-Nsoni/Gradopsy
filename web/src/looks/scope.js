@@ -16,9 +16,14 @@ import { boundarySegments, sampler } from "../world/lobes";
 const hex = (v) => [parseInt(v.slice(1, 3), 16), parseInt(v.slice(3, 5), 16), parseInt(v.slice(5, 7), 16)];
 const mix = (a, b, t) => a.map((v, i) => v + (b[i] - v) * t);
 
+/*
+ * A phosphor whitens as it is driven harder, which is why the palette runs from the graticule at
+ * 13% up through the lettering to the trace. `ink` is the lettering's drive, a step above the
+ * screen's own light and a long way below the cut's.
+ */
 export const SCOPE = {
   ground: "#060d09",
-  ink: "#7dffbe",
+  ink: "#94ffc9",
   quiet: "#2f6a4d",
   accent: "#c9ff4a",
   classInk: ["201, 255, 74", "90, 200, 255"],
@@ -33,8 +38,11 @@ export function paintGround(ctx, run, size) {
   for (let row = 0; row < run.n; row++) {
     for (let col = 0; col < run.n; col++) {
       const { cls, sure } = sample(col, row);
+      // How hard the field is driven. Pulled back from 0.40 and 0.31: the classified ground is
+      // what the lettering has to be read against, and a sixth off it is worth more than any
+      // brightening of the type — 1.5 points of contrast against 0.2.
       const c = sure < 0.04 ? bg
-        : mix(bg, cls === 0 ? green : blue, cls === 0 ? 0.06 + sure * 0.34 : 0.05 + sure * 0.26);
+        : mix(bg, cls === 0 ? green : blue, cls === 0 ? 0.05 + sure * 0.29 : 0.04 + sure * 0.23);
       const p = (row * run.n + col) * 4;
       image.data[p] = c[0]; image.data[p + 1] = c[1]; image.data[p + 2] = c[2]; image.data[p + 3] = 255;
     }
@@ -46,8 +54,18 @@ export function paintGround(ctx, run, size) {
   ctx.imageSmoothingEnabled = true;
   ctx.drawImage(buf, 0, 0, size, size);
 
-  // the raster: full-width bars of ground carved back out. This used to be drawn as a quarter
-  // of a million little rectangles a frame, because the loop walked x — and a scanline does not.
+  paintRaster(ctx, size);
+}
+
+/**
+ * The tube itself: the scanlines and the ruling, which belong to the glass and not to the signal.
+ *
+ * Kept separate because they are drawn twice — once under every frame of a live run, and once on
+ * their own while the engine is still loading, where they are the whole picture.
+ */
+export function paintRaster(ctx, size) {
+  // full-width bars of ground carved back out. This used to be drawn as a quarter of a million
+  // little rectangles a frame, because the loop walked x — and a scanline does not.
   ctx.fillStyle = SCOPE.ground;
   for (let y = 0; y < size; y += 3) ctx.fillRect(0, y + 1.6, size, 1.4);
 
@@ -58,6 +76,24 @@ export function paintGround(ctx, run, size) {
     ctx.beginPath(); ctx.moveTo(0, v); ctx.lineTo(size, v); ctx.stroke();
   }
 }
+
+/** An unlit tube: ruled and scanned, with nothing on it yet. */
+export function paintTube(ctx, size) {
+  ctx.fillStyle = SCOPE.ground;
+  ctx.fillRect(0, 0, size, size);
+  paintRaster(ctx, size);
+}
+
+/** The custom properties the whole world is drawn through, so nothing redeclares them. */
+export const VARS = {
+  "--ground": SCOPE.ground, "--ink": SCOPE.ink,
+  "--quiet": SCOPE.quiet, "--accent": SCOPE.accent,
+  "--prose": "#a9c9bb",
+  // A separator and the edge of a control are not the same power. The hairline only has to be
+  // seen; an edge has to be seen *against the field*, and at 28% it measures 1.86:1 there.
+  "--hairline": "rgba(148, 255, 201, 0.28)",
+  "--edge": "rgba(148, 255, 201, 0.6)",
+};
 
 /** The trace and the observations, drawn onto a layer that is faded rather than cleared. */
 export function paintTrace(ctx, run, size, pts, labels, held) {

@@ -173,7 +173,9 @@ function NeuronCanvas({ unit, size }) {
     if (!node) return;
     const ctx = fitCanvas(node, size, size);
     paintScalar(ctx, unit.field, unit.n, size, unit.lo, unit.hi);
-    frame(ctx, size, INK.rule);
+    // the colour used to land in the height slot, so these tiles have never had an edge at all.
+    // `bare` because a scanline pitch of three pixels across a thumbnail is noise, not a screen.
+    frame(ctx, size, size, INK.graticule, { bare: true });
   }, [node, unit, size]);
 
   return <canvas ref={setNode} />;

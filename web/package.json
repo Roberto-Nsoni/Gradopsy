@@ -8,6 +8,7 @@
     "prebuild": "npm run wheel",
     "dev": "vite",
     "build": "vite build",
+    "postbuild": "cp dist/index.html dist/404.html",
     "preview": "vite preview"
   },
   "dependencies": {

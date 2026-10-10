@@ -1,25 +1,28 @@
-// The drawing vocabulary. Everything the demos paint goes through here, so a plot is built
-// from the page's own materials rather than dropped in as a foreign canvas.
+// The drawing vocabulary. Everything the plates paint goes through here, so a plot is built from
+// the page's own materials rather than dropped in as a foreign canvas — and since the world
+// became a phosphor screen, those materials are one emitter at a handful of drives.
 
 export const INK = {
-  limewash: "#f2efea",
-  limewashDeep: "#e7e2d9",
-  poche: "#1c1f22",
-  pocheLift: "#2a2e33",
-  sunbeam: "#d6a43a",
-  sunbeamDeep: "#b8862a",
-  sunbeamText: "#8a6210",     // 4.77:1 on limewash; the fill golds are not legible as type
-  shadowBlue: "#5b6b7c",
-  stone: "#a8a39a",
-  stoneDeep: "#6f6a61",
-  rule: "#c8c2b6",
-  ruleStrong: "#8b8578",      // 3.20:1: what a control edge needs, where a separator does not
+  ground: "#060d09",          // the unlit tube
+  raised: "#0b1710",          // a surface lifted off it
+  ink: "#94ffc9",             // lettering and every rule that is meant to be read
+  trace: "#c8ffe2",           // the cut, at full drive
+  accent: "#c9ff4a",          // the brighter strike
+  prose: "#a9c9bb",           // running text and secondary marks
+  quiet: "#2f6a4d",           // separators on controlled ground; 2.87:1, never text
+  fieldB: "#2896ff",          // the second classified region
+  graticule: "rgba(148, 255, 201, 0.13)",   // the screen's own ruling
+  hairline: "rgba(148, 255, 201, 0.28)",    // what a control edge needs
 };
 
-// Classes are the section's own materials. The ramp alternates dark and light so any two
-// neighbouring classes differ by value and not only by hue, and the drawing survives being read
-// without colour. The sunbeam is never one of them: it belongs to the present moment.
-export const MATERIALS = [INK.poche, "#b9c3cb", "#5b6b7c", "#e2ddd2", "#8b8578"];
+/*
+ * The fills for a run with more than two classes.
+ *
+ * This is the open problem of the conversion, parked where it is visible rather than buried. The
+ * world has one light, and `descent` needs seven series told apart at once. These five separate
+ * five, and the seventh series has nowhere to go — see the note at the foot of DESIGN.md.
+ */
+export const MATERIALS = [INK.ink, INK.fieldB, INK.accent, INK.prose, INK.trace];
 
 export const material = (i) => MATERIALS[i % MATERIALS.length];
 
@@ -94,20 +97,20 @@ function drawUpright(ctx, buffer, size) {
 }
 
 /**
- * The classified plane as a cut section: real material where the model is sure, washing back to
- * the limewash ground where it is not.
+ * The classified plane: the field ink where the model is sure, washing back to the unlit tube
+ * where it is not, so certainty reads as how much light comes off that part of the screen.
  */
 export function paintField(ctx, { field, confidence, n, offset }, size, classes) {
   const image = ctx.createImageData(n, n);
-  const ground = hex(INK.limewash);
+  const ground = hex(INK.ground);
   const inks = Array.from({ length: classes }, (_, i) => hex(material(i)));
 
   for (let i = 0; i < n * n; i++) {
     const ink = inks[field[offset + i]] ?? ground;
 
-    // 1/classes is chance level, 1 is certain. Below chance-plus-a-bit the field is bare paper;
-    // where the model is sure the material arrives at full weight, because a section without
-    // real mass is only a wash, and mass against limewash is this world's whole identity.
+    // 1/classes is chance level, 1 is certain. Below chance-plus-a-bit the field is dark glass;
+    // where the model is sure the ink arrives at full drive. Confidence is never a line, a label
+    // or an opacity on a shape here — it is brightness, and nothing else.
     const sure = Math.max(0, (confidence[offset + i] / 255 - 1 / classes) / (1 - 1 / classes));
     const weight = 0.1 + 0.9 * sure ** 0.75;
 
@@ -202,17 +205,17 @@ export function strokeCut(ctx, path, { colour, width, alpha = 1 }) {
 }
 
 export const CUT_NOW = [
-  { colour: INK.poche, width: 2.6, alpha: 0.92 },
-  { colour: INK.sunbeam, width: 1.2, alpha: 1 },
+  { colour: INK.ink, width: 2.6, alpha: 0.92 },
+  { colour: INK.accent, width: 1.2, alpha: 1 },
 ];
 
 export const cutPast = (back, trail) =>
-  ({ colour: INK.shadowBlue, width: 1, alpha: 0.1 + 0.055 * (trail - back) });
+  ({ colour: INK.fieldB, width: 1, alpha: 0.1 + 0.055 * (trail - back) });
 
 /**
  * The cut lines, and the band of light.
  *
- * The boundary of the step you are looking at is drawn in sunbeam: it is the present moment, and
+ * The boundary of the step you are looking at is drawn in the strike: it is the present moment, and
  * watching it sweep across the plane as training advances is the thesis of this world made
  * visible. A few earlier boundaries stay behind it in shadow blue, so the drawing carries where
  * it came from as well as where it is now.
@@ -234,13 +237,16 @@ export function drawCuts(ctx, run, frameIndex, size, { trail = 4, spacing = 2 } 
 /** A field of one continuous value, for a single neuron's output. */
 export function paintScalar(ctx, values, n, size, lo, hi) {
   const image = ctx.createImageData(n, n);
-  const ground = hex(INK.limewash);
-  const dark = hex(INK.poche);
-  const warm = hex(INK.sunbeam);
+  // A diverging ramp with the unlit tube in the middle: the phosphor one side of zero, the
+  // strike the other, and no light at all where the value is nothing. Sign reads as which
+  // light, magnitude as how much of it.
+  const ground = hex(INK.ground);
+  const below = hex(INK.ink);
+  const above = hex(INK.accent);
 
   for (let i = 0; i < n * n; i++) {
     const t = (values[i] - lo) / (hi - lo || 1);
-    const [from, to, k] = t < 0.5 ? [dark, ground, t * 2] : [ground, warm, (t - 0.5) * 2];
+    const [from, to, k] = t < 0.5 ? [below, ground, t * 2] : [ground, above, (t - 0.5) * 2];
 
     const p = i * 4;
     for (let c = 0; c < 3; c++) image.data[p + c] = from[c] + (to[c] - from[c]) * k;
@@ -259,10 +265,10 @@ const luminance = (colour) => {
 };
 
 /**
- * The observations, each on the limewash halo that keeps it off the material underneath.
+ * The observations, each on the halo of ground that keeps it off the field underneath.
  *
  * The outline takes the opposite value to the observation's own material, because a class's
- * points sit on that class's own ground: a poche dot ringed in poche, inside the poche region
+ * points sit on that class's own ground: a dot ringed in its own ink, inside its own region
  * the model is confident about, is an invisible dot. Value, not hue, is what separates a mark
  * from what it is lying on.
  */
@@ -273,28 +279,51 @@ export function drawPoints(ctx, points, labels, toPixel, { radius = 4.5 } = {}) 
 
     ctx.beginPath();
     ctx.arc(px, py, radius + 1.8, 0, 2 * Math.PI);
-    ctx.fillStyle = INK.limewash;
+    ctx.fillStyle = INK.ground;
     ctx.fill();
 
     ctx.beginPath();
     ctx.arc(px, py, radius, 0, 2 * Math.PI);
     ctx.fillStyle = ink;
     ctx.fill();
-    ctx.strokeStyle = luminance(ink) < 120 ? INK.limewash : INK.poche;
+    ctx.strokeStyle = luminance(ink) < 120 ? INK.ground : INK.ink;
     ctx.lineWidth = 1.2;
     ctx.stroke();
   });
 }
 
 /** A hairline frame, the way a drawing is bounded. */
-export function frame(ctx, width, height = width, colour = INK.ruleStrong) {
+/**
+ * The edge of a drawing, and the glass in front of it.
+ *
+ * Every plate finishes here, which is why the raster lives here too: the scanlines and the
+ * ten-division ruling belong to the tube rather than to any one signal, and laying them down in
+ * the one call every drawing already makes is what turns four dark plates into four views of the
+ * same instrument. Pass `bare` for a drawing that is not on the screen — a legend or a swatch.
+ */
+export function frame(ctx, width, height = width, colour = INK.hairline, { bare = false } = {}) {
+  if (!bare) {
+    // full-width bars of ground carved back out, at the pitch the cover uses
+    ctx.fillStyle = INK.ground;
+    for (let y = 0; y < height; y += 3) ctx.fillRect(0, y + 1.6, width, 1.4);
+
+    ctx.strokeStyle = INK.graticule;
+    ctx.lineWidth = 1;
+    for (let i = 1; i < 10; i++) {
+      const x = Math.round((i / 10) * width) + 0.5;
+      const y = Math.round((i / 10) * height) + 0.5;
+      ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, height); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(width, y); ctx.stroke();
+    }
+  }
+
   ctx.strokeStyle = colour;
   ctx.lineWidth = 1;
   ctx.strokeRect(0.5, 0.5, width - 1, height - 1);
 }
 
 /**
- * A loss surface as ground: deep valleys in poche, high land washing out to limewash, with the
+ * A loss surface as ground: deep valleys at full drive, high land washing out to the unlit tube, with the
  * quantised bands edge-detected into contour lines.
  *
  * Mapped by percentile rather than by value, because these surfaces run from a span of 11
@@ -305,7 +334,7 @@ export function frame(ctx, width, height = width, colour = INK.ruleStrong) {
  * through here, so a valley is the same depth of ink wherever it is drawn.
  */
 /**
- * A loss surface as ground: deep valleys in poche, high land washing out to limewash, with the
+ * A loss surface as ground: deep valleys at full drive, high land washing out to the unlit tube, with the
  * contours of the quantised bands drawn over it as real curves.
  *
  * Mapped by percentile rather than by value, because these surfaces run from a span of 11

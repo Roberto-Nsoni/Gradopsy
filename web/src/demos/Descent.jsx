@@ -7,22 +7,31 @@ import { useMeasure, usePlayback } from "../components/Section";
 import useRun from "../components/Run";
 import { INK, fitCanvas, frame, paintTerrain } from "../world/section";
 
-// Tone and dash, never hue alone. Seven series separated only by colour is exactly the failure
-// this project has had open since the first build; a dash pattern survives any kind of vision.
+/*
+ * Tone and dash, never hue alone. Seven series separated only by colour is exactly the failure
+ * this project has had open since the first build; a dash pattern survives any kind of vision.
+ *
+ * Three phosphor drives carry the three families, and the drives are chosen by measurement: the
+ * three are 2.5, 5.3 and 2.1 apart from each other, where the pairing this replaced put two
+ * families 1.48 apart — close enough that two series read as one.
+ *
+ * Which family gets which drive is not arbitrary either. The second-order methods are what this
+ * project is *for* — a damped Newton with a finite-difference Hessian is the thing a gallery of
+ * SGD-and-Adam demos does not have — so they get the brightest phosphor, and the first-order
+ * baselines they are being compared against sit at the dimmest. Every trail is stroked over a
+ * casing of ground first, so a dim drive stays readable across the brightest terrain.
+ */
 export const RUNNERS = [
-  { key: "sgd", name: "SGD", ink: INK.poche, dash: [], width: 2.2, mark: "circle", order: 1, lr: 0.002 },
-  { key: "momentum", name: "Momentum", ink: INK.poche, dash: [9, 5], width: 2.2, mark: "square", order: 1, lr: 0.002 },
-  { key: "rmsprop", name: "RMSProp", ink: INK.shadowBlue, dash: [], width: 2.2, mark: "diamond", order: 1, lr: 0.02 },
-  { key: "adam", name: "Adam", ink: INK.shadowBlue, dash: [9, 5], width: 2.2, mark: "triangle", order: 1, lr: 0.05 },
-  { key: "bfgs", name: "BFGS", ink: INK.stoneDeep, dash: [], width: 3, mark: "cross", order: 2 },
-  { key: "lbfgs", name: "L-BFGS", ink: INK.stoneDeep, dash: [9, 5], width: 3, mark: "bar", order: 2 },
-  // Not gold. Gold is this world's one accent and it means "the step you are looking at"; a
-  // runner wearing it made a seventh of the drawing claim to be the present moment, and at
-  // 3.0:1 its name was barely readable besides. Second order is one ink family now, told apart
-  // by dash and terminal mark, which is the separation the ramp was designed around anyway.
-  { key: "newton", name: "Newton", ink: INK.stoneDeep, dash: [2.5, 4], width: 3, mark: "ring", order: 2 },
+  { key: "sgd", name: "SGD", ink: INK.quiet, dash: [], width: 2.2, mark: "circle", order: 1, lr: 0.002 },
+  { key: "momentum", name: "Momentum", ink: INK.quiet, dash: [9, 5], width: 2.2, mark: "square", order: 1, lr: 0.002 },
+  { key: "rmsprop", name: "RMSProp", ink: INK.fieldB, dash: [], width: 2.2, mark: "diamond", order: 1, lr: 0.02 },
+  { key: "adam", name: "Adam", ink: INK.fieldB, dash: [9, 5], width: 2.2, mark: "triangle", order: 1, lr: 0.05 },
+  { key: "bfgs", name: "BFGS", ink: INK.ink, dash: [], width: 3, mark: "cross", order: 2 },
+  { key: "lbfgs", name: "L-BFGS", ink: INK.ink, dash: [9, 5], width: 3, mark: "bar", order: 2 },
+  // Not the strike. The strike is this world's one accent and it means "the step you are looking
+  // at"; a runner wearing it made a seventh of the drawing claim to be the present moment.
+  { key: "newton", name: "Newton", ink: INK.ink, dash: [2.5, 4], width: 3, mark: "ring", order: 2 },
 ];
-
 /**
  * The terminal marks. Shape is a channel that survives any kind of vision, unlike hue.
  *
@@ -175,7 +184,7 @@ export function paintDescent(ctx, { info, runs, active, step, size, labelled = t
 
   for (const [mx, my] of info.minima) {
     const [px, py] = toPixel(mx, my);
-    ctx.strokeStyle = INK.limewash;
+    ctx.strokeStyle = INK.ground;
     ctx.lineWidth = 1.6;
     ctx.beginPath(); ctx.arc(px, py, 8, 0, 2 * Math.PI); ctx.stroke();
     ctx.beginPath();
@@ -199,7 +208,7 @@ export function paintDescent(ctx, { info, runs, active, step, size, labelled = t
     // An opaque casing wide enough to read, because a trail crossing either black well
     // disappears into terrain drawn in the same values as the line itself.
     const runner = BY_KEY[key];
-    for (const [w, colour, pattern] of [[runner.width + 3.4, INK.limewash, []], [runner.width, ink, dash]]) {
+    for (const [w, colour, pattern] of [[runner.width + 3.4, INK.ground, []], [runner.width, ink, dash]]) {
       ctx.beginPath();
       for (let i = 0; i <= upTo; i++) {
         const [px, py] = toPixel(run.path[i][0], run.path[i][1]);
@@ -213,7 +222,7 @@ export function paintDescent(ctx, { info, runs, active, step, size, labelled = t
       ctx.setLineDash([]);
     }
 
-    // The head: a shape that names the method, ringed in sunbeam because it is the present.
+    // The head: a shape that names the method, ringed in the strike because it is the present.
     // The ring goes *around* the mark rather than over it. Restroking the mark itself in gold
     // spent the shape channel twice and left BFGS's cross with no ink of its own at all.
     const [px, py] = toPixel(run.path[upTo][0], run.path[upTo][1]);
@@ -221,7 +230,7 @@ export function paintDescent(ctx, { info, runs, active, step, size, labelled = t
     ctx.lineJoin = "round";
     ctx.lineCap = "round";
     drawMark(ctx, runner.mark, px, py, 8);
-    ctx.strokeStyle = INK.limewash; ctx.lineWidth = 5; ctx.stroke();
+    ctx.strokeStyle = INK.ground; ctx.lineWidth = 5; ctx.stroke();
 
     drawMark(ctx, runner.mark, px, py, 5.5);
     if (runner.mark === "cross") { ctx.strokeStyle = ink; ctx.lineWidth = 2.4; ctx.stroke(); }
@@ -229,8 +238,8 @@ export function paintDescent(ctx, { info, runs, active, step, size, labelled = t
 
     ctx.beginPath();
     ctx.arc(px, py, 10, 0, 2 * Math.PI);
-    ctx.strokeStyle = INK.limewash; ctx.lineWidth = 3.6; ctx.stroke();
-    ctx.strokeStyle = INK.sunbeam; ctx.lineWidth = 1.8; ctx.stroke();
+    ctx.strokeStyle = INK.ground; ctx.lineWidth = 3.6; ctx.stroke();
+    ctx.strokeStyle = INK.accent; ctx.lineWidth = 1.8; ctx.stroke();
     ctx.lineCap = "butt";
 
     // Divergence is a fact about this runner, not about the present step, so it is written in
@@ -240,7 +249,7 @@ export function paintDescent(ctx, { info, runs, active, step, size, labelled = t
       ctx.font = "600 12px 'Martian Mono', ui-monospace, monospace";
       ctx.textAlign = "left";
       const [dx, dy] = [Math.min(size - 42, px + 11), Math.max(15, py - 11)];
-      ctx.strokeStyle = INK.limewash; ctx.lineWidth = 3.5;
+      ctx.strokeStyle = INK.ground; ctx.lineWidth = 3.5;
       ctx.strokeText("→ ∞", dx, dy);
       ctx.fillStyle = ink;
       ctx.fillText("→ ∞", dx, dy);
@@ -264,7 +273,7 @@ export function paintDescent(ctx, { info, runs, active, step, size, labelled = t
     ctx.beginPath();
     ctx.moveTo(px + Math.cos(angle) * 13, py + Math.sin(angle) * 13);
     ctx.lineTo(lx, ly);
-    ctx.strokeStyle = INK.limewash; ctx.lineWidth = 3.4; ctx.stroke();
+    ctx.strokeStyle = INK.ground; ctx.lineWidth = 3.4; ctx.stroke();
     ctx.strokeStyle = ink; ctx.lineWidth = 1; ctx.stroke();
 
     ctx.font = "600 11px 'Martian Mono', ui-monospace, monospace";
@@ -272,7 +281,7 @@ export function paintDescent(ctx, { info, runs, active, step, size, labelled = t
     ctx.textBaseline = "middle";
     const nudge = ctx.textAlign === "right" ? -4 : ctx.textAlign === "left" ? 4 : 0;
     ctx.lineJoin = "round";
-    ctx.strokeStyle = INK.limewash; ctx.lineWidth = 3.5;
+    ctx.strokeStyle = INK.ground; ctx.lineWidth = 3.5;
     ctx.strokeText(runner.name, lx + nudge, ly);
     ctx.fillStyle = ink;
     ctx.fillText(runner.name, lx + nudge, ly);

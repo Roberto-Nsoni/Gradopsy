@@ -83,26 +83,6 @@ export function Plate({ title, note, children }) {
   );
 }
 
-export function Waiting({ progress, failed }) {
-  return (
-    <div className="waiting">
-      <div className="waiting-sheet">
-        <h1 className="display waiting-title">
-          visual<br />ML
-        </h1>
-        <p className={"prose waiting-note" + (failed ? " is-failed" : "")}>
-          {failed ? `Could not start: ${progress}` : progress}
-          {!failed && <span className="waiting-dots" aria-hidden="true" />}
-        </p>
-        <p className="waiting-small prose">
-          Python and NumPy are loading into this page. About 15&nbsp;MB, once.
-        </p>
-      </div>
-      <div className="waiting-ground" aria-hidden="true" />
-    </div>
-  );
-}
-
 export function Foot() {
   return (
     <footer className="foot">

@@ -3,7 +3,8 @@ import { useEffect, useRef, useState } from "react";
 import { liveOpen, liveStep, liveClose } from "../engine";
 import { CLASSES } from "../world/lobes";
 import { MOTIONS, motionById, randomMotion, system } from "./motions";
-import { SCOPE, paintGround, paintTrace } from "./scope";
+import { LETTERINGS, letteringById } from "./lettering";
+import { SCOPE, VARS, paintGround, paintTrace } from "./scope";
 import "./looks.css";
 
 /*
@@ -78,7 +79,7 @@ const CANVAS = 1400;
 
 const FADE = 0.2;                // how much of the phosphor is lost per frame
 
-/** `#/look/wave?lr=0.0004&h=8&opt=sgd` — for sweeping the feel without editing code. */
+/** `/look/wave?lr=0.0004&h=8&opt=sgd` — for sweeping the feel without editing code. */
 function tuning() {
   const q = new URLSearchParams(window.location.hash.split("?")[1] || "");
   const h = q.get("h");
@@ -92,7 +93,7 @@ function tuning() {
   };
 }
 
-export default function Look({ id }) {
+export default function Look({ id, chrome }) {
   const canvas = useRef(null);
   const glow = useRef(null);
   const box = useRef({ w: 1440, h: 900 });
@@ -249,14 +250,12 @@ export default function Look({ id }) {
     setGrabbed(null);
   };
 
-  const style = {
-    "--ground": SCOPE.ground, "--ink": SCOPE.ink,
-    "--quiet": SCOPE.quiet, "--accent": SCOPE.accent,
-  };
+  // which of the lettering studies is wearing the screen. The drawing is settled; this is not.
+  const { Chrome } = letteringById(chrome) ?? LETTERINGS[0];
   const cover = Math.max(box.current.w, box.current.h);
 
   return (
-    <div className="look" style={style}>
+    <div className="look" style={VARS}>
       <canvas
         ref={canvas} className="look-canvas"
         style={{
@@ -267,38 +266,7 @@ export default function Look({ id }) {
         aria-label="A live decision boundary you can rearrange by dragging an observation."
       />
 
-      <header className="look-head">
-        <a className="look-mark" href="#/">visualML</a>
-        <nav className="look-nav">
-          <a href="#/boundary">boundary</a>
-          <a href="#/overfit">capacity</a>
-          <a href="#/lenses">two lenses</a>
-          <a href="#/descent">descent</a>
-        </nav>
-      </header>
-
-      <div className="look-say">
-        <h1 className="look-title">Machine learning<br />with nothing<br />underneath it</h1>
-        <p className="look-lede">
-          An autograd engine, seven optimizers and four plates that run the mathematics
-          in front of you. No PyTorch. No server.
-        </p>
-        <div className="look-acts">
-          <a className="look-act" href="#/boundary">Open the plates</a>
-          <a className="look-act look-act-quiet" href="https://github.com/Roberto-Nsoni/visualML"
-             target="_blank" rel="noreferrer">Read the source</a>
-        </div>
-      </div>
-
-      <footer className="look-foot">
-        <div className="look-band">
-          <span><i>loss</i>{readout ? readout.loss.toFixed(4) : "—"}</span>
-          <span><i>accuracy</i>{readout ? (readout.accuracy * 100).toFixed(1) + "%" : "—"}</span>
-        </div>
-        <p className="look-name">
-          <a href="#/looks">{motion.name}</a> · {motion.note}
-        </p>
-      </footer>
+      <Chrome motion={motion} readout={readout} />
     </div>
   );
 }
@@ -315,9 +283,33 @@ export function LooksIndex() {
       <ol>
         {MOTIONS.map((m, i) => (
           <li key={m.id}>
-            <a href={`#/look/${m.id}`}>
+            <a href={`/look/${m.id}`}>
               <b>{String(i + 1).padStart(2, "0")} · {m.name}</b>
               <span>{m.note}</span>
+            </a>
+          </li>
+        ))}
+      </ol>
+    </div>
+  );
+}
+
+/** Every lettering study, so the same screen can be read seven ways without guessing. */
+export function TypeIndex() {
+  return (
+    <div className="looks-index">
+      <h1>Lettering</h1>
+      <p>
+        The drawing is settled. This is the part that is not: how much type a live instrument
+        needs before it stops being one. Each study wears the same screen, with a choreography
+        picked at random, so they are judged in place rather than on paper.
+      </p>
+      <ol>
+        {LETTERINGS.map((l, i) => (
+          <li key={l.id}>
+            <a href={`/type/${l.id}`}>
+              <b>{String(i).padStart(2, "0")} · {l.name}</b>
+              <span>{l.note}</span>
             </a>
           </li>
         ))}

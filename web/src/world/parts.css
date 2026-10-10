@@ -9,12 +9,11 @@
   gap: var(--gutter);
   flex-wrap: wrap;
   padding: 20px var(--gutter) 14px;
-  border-bottom: 1px solid var(--rule);
+  border-bottom: 1px solid var(--graticule);
 }
 .masthead-mark { text-decoration: none; display: block; }
 .masthead-name {
   display: block;
-  font-style: italic;
   font-weight: 700;
   font-stretch: 72%;
   font-size: 1.5rem;
@@ -26,7 +25,6 @@
 
 .masthead-nav { display: flex; align-items: center; gap: clamp(14px, 2vw, 26px); flex-wrap: wrap; }
 .masthead-link {
-  font-style: italic;
   font-weight: 500;
   font-stretch: 88%;
   font-size: 0.9rem;
@@ -34,10 +32,10 @@
   text-decoration: none;
   padding-bottom: 3px;
   border-bottom: 2px solid transparent;
-  color: var(--stone-deep);
+  color: var(--prose);
 }
-.masthead-link:hover { color: var(--poche); }
-.masthead-link.is-here { color: var(--poche); border-bottom-color: var(--sunbeam); }
+.masthead-link:hover { color: var(--ink); }
+.masthead-link.is-here { color: var(--ink); border-bottom-color: var(--accent); }
 .masthead-repo { padding: 9px 16px; font-size: 0.6875rem; }
 
 /* ---------- the measured band ---------- */
@@ -45,20 +43,20 @@
 .band {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(128px, 1fr));
-  border-top: 1px solid var(--rule);
+  border-top: 1px solid var(--graticule);
 }
 .band-cell {
   display: flex;
   flex-direction: column;
   gap: 3px;
   padding: 12px 16px 12px 0;
-  border-right: 1px solid var(--rule);
+  border-right: 1px solid var(--graticule);
 }
 .band-cell:last-child { border-right: 0; }
 .band-cell:not(:first-child) { padding-left: 16px; }
 .band-value { font-size: clamp(1.15rem, 2vw, 1.6rem); line-height: 1.1; font-weight: 600; }
-.band-value.is-lit { color: var(--sunbeam-text); }
-.band-unit { font-style: normal; font-size: 0.62em; color: var(--stone-deep); margin-left: 3px; }
+.band-value.is-lit { color: var(--accent); }
+.band-unit { font-style: normal; font-size: 0.62em; color: var(--prose); margin-left: 3px; }
 
 /* ---------- the scrubber: the band of light ---------- */
 
@@ -73,8 +71,8 @@
   letter-spacing: 0.16em;
   text-transform: uppercase;
   background: transparent;
-  border: 1px solid var(--poche);
-  color: var(--poche);
+  border: 1px solid var(--ink);
+  color: var(--ink);
   height: 34px;
   padding: 0 13px;
   cursor: pointer;
@@ -83,20 +81,20 @@
   gap: 8px;
   clip-path: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px);
 }
-.scrub-btn:hover { background: var(--poche); color: var(--limewash); }
-.scrub-btn-sun { background: var(--sunbeam); border-color: var(--sunbeam); }
-.scrub-btn-sun:hover { background: var(--sunbeam-deep); border-color: var(--sunbeam-deep); color: var(--poche); }
+.scrub-btn:hover { background: var(--ink); color: var(--ground); }
+.scrub-btn-sun { background: var(--accent); border-color: var(--accent); }
+.scrub-btn-sun:hover { background: var(--accent); border-color: var(--accent); color: var(--ink); }
 
 .scrub-band { position: relative; flex: 1 1 200px; min-width: 0; padding: 24px 10px 6px; }
-.scrub-track { position: relative; height: 3px; background: var(--rule-strong); }
-.scrub-ready { position: absolute; inset: 0 auto 0 0; background: var(--stone-deep); }
-.scrub-lit { position: absolute; inset: 0 auto 0 0; background: var(--sunbeam); }
+.scrub-track { position: relative; height: 3px; background: var(--hairline); }
+.scrub-ready { position: absolute; inset: 0 auto 0 0; background: var(--prose); }
+.scrub-lit { position: absolute; inset: 0 auto 0 0; background: var(--accent); }
 .scrub-head {
   position: absolute;
   top: -19px;
   bottom: -6px;
   width: 1px;
-  background: var(--sunbeam-text);
+  background: var(--accent);
   transform: translateX(-0.5px);
 }
 .scrub-now {
@@ -104,7 +102,7 @@
   bottom: calc(100% + 5px);
   font-size: 0.7rem;
   font-weight: 700;
-  color: var(--sunbeam-text);
+  color: var(--accent);
   white-space: nowrap;
   letter-spacing: 0.02em;
 }
@@ -122,7 +120,7 @@
   cursor: ew-resize;
 }
 .scrub-band:has(.scrub-input:focus-visible) .scrub-track {
-  outline: 2px solid var(--sunbeam-deep);
+  outline: 2px solid var(--accent);
   outline-offset: 6px;
 }
 
@@ -139,16 +137,16 @@
   gap: clamp(20px, 4vw, 60px);
   align-items: end;
   padding-bottom: 26px;
-  border-bottom: 1px solid var(--rule);
+  border-bottom: 1px solid var(--graticule);
   margin-bottom: 26px;
 }
-.plate-note { margin: 0; color: var(--stone-deep); }
+.plate-note { margin: 0; color: var(--prose); }
 
 /* ---------- leader-line readout ---------- */
 
-.leaders { display: grid; margin: 28px 0 0; border-top: 1px solid var(--rule); }
-.leader { display: grid; grid-template-columns: 26px 1fr auto; align-items: baseline; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--rule); }
-.leader-line { height: 1px; background: var(--rule-strong); align-self: center; }
+.leaders { display: grid; margin: 28px 0 0; border-top: 1px solid var(--graticule); }
+.leader { display: grid; grid-template-columns: 26px 1fr auto; align-items: baseline; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--graticule); }
+.leader-line { height: 1px; background: var(--hairline); align-self: center; }
 .leader-value { font-size: 0.9rem; font-weight: 600; text-align: right; }
 
 /* ---------- the wait ---------- */
@@ -156,26 +154,7 @@
 /* The horizon is a drawn edge, not a gradient stop. At 62% of the viewport it landed on the
    progress sentence and cut it through the baseline, and it separated two grounds with nothing
    between them — which is the one thing this world says a background change may never do. */
-.waiting {
-  min-height: 100vh;
-  display: grid;
-  grid-template-rows: 1fr minmax(120px, 26vh);
-  padding: var(--gutter);
-  background: var(--limewash);
-}
-.waiting-sheet { max-width: 46ch; align-self: center; }
-.waiting-ground {
-  background: var(--limewash-deep);
-  border-top: 1px solid var(--rule);
-  margin: 0 calc(-1 * var(--gutter)) calc(-1 * var(--gutter));
-}
-.waiting-title { margin: 12px 0 20px; }
-.waiting-note { color: var(--poche); }
-.waiting-note.is-failed { color: #8c2f1c; }
-.waiting-dots::after { content: ""; animation: dots 1.4s steps(4, end) infinite; }
-.waiting-small { margin-top: 16px; max-width: 40ch; color: var(--stone-deep); }
 
-@keyframes dots { 0% { content: ""; } 25% { content: "."; } 50% { content: ".."; } 75% { content: "..."; } }
 
 /* ---------- foot ---------- */
 
@@ -188,8 +167,8 @@
   flex-wrap: wrap;
   padding-top: 22px;
 }
-.foot-note { color: var(--stone-deep); max-width: 46ch; }
+.foot-note { color: var(--prose); max-width: 46ch; }
 
-.leader-note { display: block; font-size: 0.86rem; color: var(--stone-deep); margin-top: 3px; max-width: 46ch; }
-.evidence-leaders .leader-value { font-size: clamp(1.5rem, 2.6vw, 2.1rem); color: var(--sunbeam-text); line-height: 1; }
+.leader-note { display: block; font-size: 0.86rem; color: var(--prose); margin-top: 3px; max-width: 46ch; }
+.evidence-leaders .leader-value { font-size: clamp(1.5rem, 2.6vw, 2.1rem); color: var(--accent); line-height: 1; }
 .evidence-leaders .leader { padding: 16px 0; align-items: center; }

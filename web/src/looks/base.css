@@ -1,0 +1,71 @@
+/* The Phosphor Screen, the parts every surface shares: the faces, the tokens, and the browser's own
+   surfaces painted in the world's colours. Lifted out of world/world.css, which belonged to the plates. */
+
+@font-face {
+  font-family: "Archivo";
+  src: url("/fonts/archivo-var.woff2") format("woff2-variations");
+  font-weight: 100 900;
+  font-stretch: 62% 125%;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Martian Mono";
+  src: url("/fonts/martian-mono-var.woff2") format("woff2-variations");
+  font-weight: 100 800;
+  font-stretch: 75% 112%;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  /* The phosphor screen: one emitter, driven at different powers. */
+  --ground: #060d09;        /* the unlit tube */
+  --raised: #0b1710;        /* a surface lifted off it, for tracks and wells */
+  --ink: #94ffc9;           /* lettering, at the drive the wordmark uses */
+  --prose: #a9c9bb;         /* running text — chosen for reading, not for glowing */
+  --quiet: #2f6a4d;         /* separators on controlled ground. 2.87:1 — never text, never an edge */
+  --accent: #c9ff4a;        /* the brighter strike: one action per viewport */
+  --trace: #c8ffe2;         /* the cut, at full drive */
+  --edge: rgba(148, 255, 201, 0.6);        /* what a control edge needs: 3.42:1 over the field */
+  --hairline: rgba(148, 255, 201, 0.28);   /* what a separator needs, and no more */
+  --graticule: rgba(148, 255, 201, 0.13);  /* what the screen's own ruling is */
+
+  /* Panel lettering: roman, condensed, tracked. There is no italic in this world. */
+  --face: "Archivo", "Helvetica Neue", Arial, sans-serif;
+  --measured: "Martian Mono", ui-monospace, Menlo, Consolas, monospace;
+
+  --gutter: clamp(16px, 3vw, 40px);
+  --rhythm: clamp(56px, 8vw, 132px);
+
+  color-scheme: dark;
+  accent-color: var(--accent);
+  scrollbar-color: var(--quiet) var(--raised);
+}
+
+* { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  margin: 0;
+  background: var(--ground);
+  color: var(--ink);
+  font-family: var(--face);
+  font-size: 16px;
+  line-height: 1.55;
+  font-synthesis: none;
+  caret-color: var(--accent);
+}
+
+/* The surfaces the browser draws still belong to the drawing. */
+::selection { background: var(--accent); color: var(--ground); }
+::-webkit-scrollbar { width: 12px; height: 12px; }
+::-webkit-scrollbar-track { background: var(--raised); }
+::-webkit-scrollbar-thumb { background: var(--quiet); border: 3px solid var(--raised); }
+::-webkit-scrollbar-thumb:hover { background: var(--prose); }
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}

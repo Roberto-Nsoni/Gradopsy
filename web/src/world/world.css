@@ -1,6 +1,7 @@
-/* Daylight Section — the world.
-   A section cut through a problem, with a band of light moving across it for time.
-   Limewash ground, poche mass, one sunbeam that is always the active moment. */
+/* The Phosphor Screen — the world, shared by the plates.
+   A cathode ray tube with a learning engine drawing on it. Near-black green ground, one phosphor
+   that is the instrument's own light, and a brighter strike for the single thing you may press.
+   The cover already lives here; the plates are being brought across. */
 
 @font-face {
   font-family: "Archivo";
@@ -8,14 +9,6 @@
   font-weight: 100 900;
   font-stretch: 62% 125%;
   font-style: normal;
-  font-display: swap;
-}
-@font-face {
-  font-family: "Archivo";
-  src: url("/fonts/archivo-italic-var.woff2") format("woff2-variations");
-  font-weight: 100 900;
-  font-stretch: 62% 125%;
-  font-style: italic;
   font-display: swap;
 }
 @font-face {
@@ -28,31 +21,28 @@
 }
 
 :root {
-  /* Palette, taken from the world's own board */
-  --limewash: #f2efea;
-  --limewash-deep: #e7e2d9;
-  --poche: #1c1f22;
-  --sunbeam: #d6a43a;
-  --sunbeam-deep: #b8862a;
-  --shadow-blue: #5b6b7c;
-  --stone: #a8a39a;
-  --stone-deep: #6f6a61;
+  /* The phosphor screen: one emitter, driven at different powers. */
+  --ground: #060d09;        /* the unlit tube */
+  --raised: #0b1710;        /* a surface lifted off it, for tracks and wells */
+  --ink: #94ffc9;           /* lettering, at the drive the wordmark uses */
+  --prose: #a9c9bb;         /* running text — chosen for reading, not for glowing */
+  --quiet: #2f6a4d;         /* separators on controlled ground. 2.87:1 — never text, never an edge */
+  --accent: #c9ff4a;        /* the brighter strike: one action per viewport */
+  --trace: #c8ffe2;         /* the cut, at full drive */
+  --edge: rgba(148, 255, 201, 0.6);        /* what a control edge needs: 3.42:1 over the field */
+  --hairline: rgba(148, 255, 201, 0.28);   /* what a separator needs, and no more */
+  --graticule: rgba(148, 255, 201, 0.13);  /* what the screen's own ruling is */
 
-  --rule: #c8c2b6;          /* separador decorativo */
-  --rule-strong: #8b8578;   /* 3.20:1 — lo que necesita el borde de un control */
-  --sunbeam-text: #8a6210;  /* 4.77:1 — el oro de relleno no es legible como texto */
-
-  /* The section is drawn, so the type is drawn too: inclined, condensed, tracked */
+  /* Panel lettering: roman, condensed, tracked. There is no italic in this world. */
   --face: "Archivo", "Helvetica Neue", Arial, sans-serif;
   --measured: "Martian Mono", ui-monospace, Menlo, Consolas, monospace;
 
-  --slant: italic;
   --gutter: clamp(16px, 3vw, 40px);
   --rhythm: clamp(56px, 8vw, 132px);
 
-  color-scheme: light;
-  accent-color: var(--sunbeam-deep);
-  scrollbar-color: var(--stone) var(--limewash-deep);
+  color-scheme: dark;
+  accent-color: var(--accent);
+  scrollbar-color: var(--quiet) var(--raised);
 }
 
 * { box-sizing: border-box; }
@@ -61,24 +51,24 @@ html { -webkit-text-size-adjust: 100%; }
 
 body {
   margin: 0;
-  background: var(--limewash);
-  color: var(--poche);
+  background: var(--ground);
+  color: var(--ink);
   font-family: var(--face);
   font-size: 16px;
   line-height: 1.55;
   font-synthesis: none;
-  caret-color: var(--sunbeam-deep);
+  caret-color: var(--accent);
 }
 
 /* The surfaces the browser draws still belong to the drawing. */
-::selection { background: var(--sunbeam); color: var(--poche); }
+::selection { background: var(--accent); color: var(--ground); }
 ::-webkit-scrollbar { width: 12px; height: 12px; }
-::-webkit-scrollbar-track { background: var(--limewash-deep); }
-::-webkit-scrollbar-thumb { background: var(--stone); border: 3px solid var(--limewash-deep); }
-::-webkit-scrollbar-thumb:hover { background: var(--stone-deep); }
+::-webkit-scrollbar-track { background: var(--raised); }
+::-webkit-scrollbar-thumb { background: var(--quiet); border: 3px solid var(--raised); }
+::-webkit-scrollbar-thumb:hover { background: var(--prose); }
 
 :focus-visible {
-  outline: 2px solid var(--sunbeam-deep);
+  outline: 2px solid var(--accent);
   outline-offset: 3px;
 }
 
@@ -86,7 +76,6 @@ body {
 
 /* Display: inclined, condensed, set at drawing scale. The scale jump is the point. */
 .display {
-  font-style: var(--slant);
   font-weight: 600;
   font-stretch: 70%;
   font-size: clamp(3.2rem, 11vw, 9.5rem);
@@ -97,7 +86,6 @@ body {
 }
 
 .headline {
-  font-style: var(--slant);
   font-weight: 600;
   font-stretch: 74%;
   font-size: clamp(1.9rem, 4.2vw, 3.4rem);
@@ -109,7 +97,6 @@ body {
 
 /* Prose is inclined too: this is a drawing, and its notes are written by hand. */
 .prose {
-  font-style: var(--slant);
   font-weight: 400;
   font-stretch: 96%;
   font-size: clamp(0.98rem, 1.15vw, 1.12rem);
@@ -126,7 +113,7 @@ body {
   font-size: 0.6875rem;
   letter-spacing: 0.2em;
   text-transform: uppercase;
-  color: var(--stone-deep);
+  color: var(--prose);
   margin: 0;
 }
 
@@ -150,9 +137,9 @@ body {
   letter-spacing: 0.16em;
   text-transform: uppercase;
   padding: 14px 22px;
-  border: 1px solid var(--poche);
+  border: 1px solid var(--ink);
   background: transparent;
-  color: var(--poche);
+  color: var(--ink);
   cursor: pointer;
   display: inline-flex;
   align-items: center;
@@ -160,16 +147,16 @@ body {
   text-decoration: none;
   clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
 }
-.btn:hover { background: var(--poche); color: var(--limewash); }
+.btn:hover { background: var(--ink); color: var(--ground); }
 
 .btn-sun {
-  background: var(--sunbeam);
-  border-color: var(--sunbeam);
-  color: var(--poche);
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--ink);
 }
-.btn-sun:hover { background: var(--sunbeam-deep); border-color: var(--sunbeam-deep); color: var(--poche); }
+.btn-sun:hover { background: var(--accent); border-color: var(--accent); color: var(--ink); }
 
 /* A rule is how this system separates things. Never a shadow. */
-.rule { border: 0; border-top: 1px solid var(--rule); margin: 0; }
+.rule { border: 0; border-top: 1px solid var(--graticule); margin: 0; }
 
 a { color: inherit; }

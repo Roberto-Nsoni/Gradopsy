@@ -32,11 +32,23 @@
 }
 .look-nav { display: flex; align-items: baseline; gap: clamp(14px, 2vw, 28px); }
 .look-nav a {
-  font-size: 0.72rem; letter-spacing: 0.18em; text-transform: uppercase;
-  text-decoration: none; color: var(--quiet); padding-bottom: 4px;
+  font-size: 0.78rem; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase;
+  text-decoration: none; color: var(--ink); padding-bottom: 4px;
   border-bottom: 1px solid transparent;
 }
-.look-nav a:hover { color: var(--ink); border-bottom-color: var(--accent); }
+.look-nav a:hover { color: var(--accent); border-bottom-color: var(--accent); }
+
+/*
+ * Nothing that sits over the live field is drawn in `quiet`.
+ *
+ * Measured against the field at full confidence — the ground mixed 40% toward its green —
+ * `quiet` is 1.02:1. Not dim: invisible, and invisible exactly when the network is sure, which
+ * is most of the time. The phosphor itself is 5.05:1 there and clears what small type needs.
+ *
+ * So over the drawing there is one power, and the hierarchy is size, weight and tracking, which
+ * is how an instrument's silk-screen has always done it. `quiet` keeps its job only where the
+ * drawing cannot reach: inside the panel, and on the dark index pages.
+ */
 
 /* The type sits in a panel cut out of the screen, the way a bezel masks a corner of the tube. */
 .look-say {
@@ -46,7 +58,6 @@
   padding: clamp(26px, 2.6vw, 38px) clamp(28px, 2.8vw, 42px);
   background: rgba(6, 13, 9, 0.82);
   border: 1px solid rgba(125, 255, 190, 0.22);
-  box-shadow: inset 0 0 0 1px rgba(6, 13, 9, 0.9);
 }
 .look-title {
   margin: 0 0 20px;
@@ -71,10 +82,15 @@
 .look-act-quiet { background: transparent; color: var(--ink); border-color: rgba(125, 255, 190, 0.4); }
 .look-act-quiet:hover { background: transparent; border-color: var(--ink); }
 
+/*
+ * The cover is read across, not down: what the thing is on the left, what it is doing on the
+ * right. The column takes the left edge and the instrument's own readings take the right, so
+ * the two never argue over the middle and the drawing keeps it.
+ */
 .look-foot {
   left: 0; right: 0; bottom: 0;
   padding: 0 clamp(20px, 4vw, 54px) 22px;
-  display: grid; gap: 10px;
+  display: grid; gap: 10px; justify-items: end; text-align: right;
 }
 .look-band {
   display: flex; flex-wrap: wrap; gap: clamp(22px, 3.4vw, 52px);
@@ -83,14 +99,15 @@
   font-size: clamp(0.95rem, 1.4vw, 1.2rem); font-weight: 600;
   font-variant-numeric: tabular-nums; letter-spacing: -0.02em;
 }
-.look-band span { display: grid; gap: 3px; }
+.look-band { justify-content: flex-end; width: 100%; }
+.look-band span { display: grid; gap: 3px; justify-items: end; }
 .look-band i {
   font-family: "Archivo", sans-serif; font-style: normal; font-weight: 600;
-  font-size: 0.6rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--quiet);
+  font-size: 0.6rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--ink);
 }
-.look-name { margin: 0; font-size: 0.68rem; letter-spacing: 0.14em; color: var(--quiet); }
-.look-name a { color: var(--quiet); text-decoration: none; text-transform: uppercase; }
-.look-name a:hover { color: var(--ink); }
+.look-name { margin: 0; font-size: 0.68rem; letter-spacing: 0.14em; color: var(--ink); }
+.look-name a { color: var(--ink); text-decoration: none; text-transform: uppercase; }
+.look-name a:hover { color: var(--accent); }
 
 @media (max-width: 900px) {
   .look-say {
@@ -121,3 +138,192 @@
   font-size: clamp(1.1rem, 2.2vw, 1.5rem); color: #7dffbe;
 }
 .looks-index span { color: #8fb7a6; line-height: 1.5; }
+
+/* ---- lettering studies -------------------------------------------------
+   Seven answers to how much type a live instrument needs. No italic anywhere:
+   the <em> and <i> below are semantic, and both are reset to roman. */
+
+.look-ends { display: flex; align-items: baseline; gap: clamp(18px, 3vw, 40px); }
+
+/*
+ * The repository is the only bridge from this page to whoever built it — the product carries no
+ * name, no biography and no contact anywhere else — so on the cover it is not a link filed among
+ * links. It is a control with an edge around it, at the one corner nothing else occupies.
+ */
+.look-source a {
+  display: inline-block; padding: 10px 16px;
+  font-size: 0.78rem; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase;
+  text-decoration: none; color: var(--ink); border: 1px solid var(--edge);
+}
+.look-source a:hover { color: var(--accent); border-color: var(--accent); }
+
+/* 02 · Legend — silk-screened onto the panel, in the register of the numbers */
+.look-legend {
+  position: absolute; z-index: 2;
+  left: clamp(20px, 4vw, 54px); top: 50%; transform: translateY(-50%);
+  display: grid; gap: 16px;
+}
+.look-legend p { margin: 0; display: grid; gap: 4px; max-width: 32ch; }
+.look-legend i {
+  font-style: normal; font-weight: 600; font-size: 0.6rem;
+  letter-spacing: 0.2em; text-transform: uppercase; color: var(--ink);
+}
+.look-legend p {
+  font-family: "Martian Mono", ui-monospace, Menlo, monospace;
+  font-size: clamp(0.82rem, 1.05vw, 0.95rem); font-weight: 600;
+  letter-spacing: -0.02em; color: var(--ink);
+}
+
+/* 03 · Wordmark — the name as the only display type */
+.look-big {
+  position: absolute; z-index: 2; margin: 0;
+  left: clamp(20px, 4vw, 54px); bottom: clamp(120px, 18vh, 200px);
+}
+.look-big a {
+  text-decoration: none; color: var(--ink);
+  font-weight: 700; font-stretch: 74%;
+  font-size: clamp(2.6rem, 8vw, 6rem); line-height: 0.9;
+  letter-spacing: 0.02em; text-transform: uppercase;
+}
+
+/* 04 · Caption — the claim demoted to a caption beside the readout */
+.look-foot-wide { gap: 14px; }
+.look-caption {
+  margin: 0; max-width: 62ch;
+  font-size: clamp(0.92rem, 1.05vw, 1.02rem); line-height: 1.55; color: var(--ink);
+}
+
+/* 05 · Contents — the plates become the page */
+.look-contents {
+  position: absolute; z-index: 2; list-style: none; margin: 0; padding: 0;
+  left: clamp(20px, 4vw, 54px); top: 50%; transform: translateY(-50%);
+  max-width: min(38ch, 52vw);
+}
+.look-contents li { border-top: 1px solid var(--hairline); }
+.look-contents li:last-child { border-bottom: 1px solid var(--hairline); }
+.look-contents a {
+  display: grid; grid-template-columns: 2.4em 1fr; gap: 2px 14px;
+  padding: 13px 0; text-decoration: none;
+}
+.look-contents b {
+  grid-row: span 2; font-family: "Martian Mono", ui-monospace, monospace;
+  font-size: 0.78rem; font-weight: 600; color: var(--ink); letter-spacing: -0.02em;
+}
+.look-contents span {
+  font-weight: 600; font-size: 0.78rem; letter-spacing: 0.18em;
+  text-transform: uppercase; color: var(--ink);
+}
+.look-contents em { font-style: normal; font-size: 0.82rem; color: var(--ink); }
+.look-contents a:hover span { color: var(--accent); }
+
+/* 06 · Etched — the label stamped on the back of the instrument */
+.look-etch { display: grid; gap: 7px; }
+.look-etch p {
+  margin: 0; padding-top: 7px; border-top: 1px solid var(--hairline);
+  font-size: 0.6rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--ink);
+}
+
+/* 07 · Corner — everything the page says, stacked out of the drawing's way */
+.look-corner {
+  position: absolute; z-index: 2;
+  right: clamp(20px, 4vw, 54px); bottom: clamp(110px, 17vh, 180px);
+  display: grid; gap: 18px; justify-items: end; text-align: right;
+  max-width: min(40ch, 54vw);
+}
+.look-corner-say {
+  margin: 0; font-size: clamp(0.92rem, 1.05vw, 1.02rem);
+  line-height: 1.55; color: var(--ink);
+}
+.look-corner .look-nav { justify-content: flex-end; flex-wrap: wrap; }
+
+@media (max-width: 900px) {
+  .look-legend, .look-contents { top: auto; bottom: 26vh; transform: none; }
+  .look-contents { max-width: none; right: clamp(16px, 4vw, 54px); }
+  .look-big { bottom: 24vh; }
+  .look-corner { left: clamp(16px, 4vw, 54px); justify-items: start; text-align: left; }
+  .look-corner .look-nav { justify-content: flex-start; }
+  .look-ends { flex-wrap: wrap; gap: 12px; }
+}
+
+
+/* The plates, wherever a study chooses to hand them over: one line, in the phosphor,
+   at the weight of something you are meant to press rather than read. */
+.look-plates { display: flex; flex-wrap: wrap; gap: clamp(14px, 2vw, 26px); margin-top: 4px; }
+.look-plates a {
+  font-size: 0.78rem; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase;
+  text-decoration: none; color: var(--ink); padding-bottom: 4px;
+  border-bottom: 1px solid var(--hairline);
+}
+.look-plates a:hover { color: var(--accent); border-bottom-color: var(--accent); }
+.look-legend .look-plates { margin-top: 2px; }
+.look-big h1 { margin: 0 0 18px; }
+
+/* ---- the cover ---------------------------------------------------------
+   One right-hand column against a single edge: name, sentence, plates. */
+
+.look-head-end { justify-content: flex-end; }
+
+.look-column {
+  position: absolute; z-index: 2;
+  left: clamp(20px, 4vw, 54px);
+  top: 50%; transform: translateY(-50%);
+  display: grid; gap: clamp(20px, 2.6vw, 32px); justify-items: start;
+  text-align: left; width: min(42ch, 54vw);
+}
+.look-column-mark { margin: 0; }
+.look-column-mark a {
+  text-decoration: none; color: var(--ink);
+  font-weight: 700; font-stretch: 74%;
+  font-size: clamp(2.1rem, 6vw, 4.4rem); line-height: 0.9;
+  letter-spacing: 0.02em; text-transform: uppercase;
+}
+.look-column-say {
+  margin: 0; max-width: 38ch;
+  font-size: clamp(0.92rem, 1.05vw, 1.04rem); line-height: 1.55; color: var(--ink);
+}
+.look-column-plates { list-style: none; margin: 0; padding: 0; width: 100%; }
+.look-column-plates li { border-top: 1px solid var(--hairline); }
+.look-column-plates li:last-child { border-bottom: 1px solid var(--hairline); }
+.look-column-plates a { display: grid; gap: 4px; padding: 13px 0; text-decoration: none; }
+.look-column-plates span {
+  font-weight: 600; font-size: 0.78rem; letter-spacing: 0.18em;
+  text-transform: uppercase; color: var(--ink);
+}
+.look-column-plates em { font-style: normal; font-size: 0.86rem; line-height: 1.4; color: var(--ink); }
+.look-column-plates a:hover span { color: var(--accent); }
+.look-column-plates a:hover em { color: var(--ink); }
+
+@media (max-width: 900px) {
+  .look-column {
+    left: clamp(16px, 4vw, 54px); right: clamp(16px, 4vw, 54px);
+    width: auto; top: auto; bottom: 22vh; transform: none;
+    gap: 18px;
+  }
+  .look-column-say { max-width: none; }
+}
+
+/* The boot readout: a status line in the register of the numbers, because that is what it is. */
+.look-boot {
+  margin: 0; display: grid; gap: 5px; justify-items: end;
+  font-family: "Martian Mono", ui-monospace, Menlo, monospace;
+  font-size: clamp(0.86rem, 1.1vw, 1rem); font-weight: 600;
+  letter-spacing: -0.02em; color: var(--ink);
+}
+.look-boot i {
+  font-family: "Archivo", sans-serif; font-style: normal; font-weight: 600;
+  font-size: 0.6rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--ink);
+}
+
+/* The wait has no drawing to stand clear of, so its column sits in the middle of the tube. */
+.look-column-mid {
+  left: 50%; transform: translate(-50%, -50%);
+  justify-items: center; text-align: center;
+}
+.look-column-mid .look-boot { justify-items: center; }
+
+@media (max-width: 900px) {
+  .look-column-mid {
+    left: clamp(16px, 4vw, 54px); right: clamp(16px, 4vw, 54px);
+    top: 50%; bottom: auto; transform: translateY(-50%);
+  }
+}
