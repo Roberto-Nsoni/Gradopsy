@@ -17,6 +17,7 @@ node_modules/
 data/raw/
 
 # LaTeX build files (paper/)
+paper/main.pdf
 *.aux
 *.bbl
 *.blg
