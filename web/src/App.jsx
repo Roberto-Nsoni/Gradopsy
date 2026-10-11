@@ -79,9 +79,6 @@ export default function App() {
   if (route === "type") return <TypeIndex />;
   if (route.startsWith("type/")) return <Look chrome={route.slice(5)} />;
 
-  // A study of the network panel, on the same live playground, off the main navigation
-  if (route === "playground/linked") return <Guard key="playground"><Playground study="linked" /></Guard>;
-
   // The cover is the front door: the phosphor screen, a choreography picked at random
   if (!ROUTES[route]) return <Look />;
 

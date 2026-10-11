@@ -10,7 +10,6 @@ import {
 import { CLASSES } from "./paint";
 import Screen from "./Screen";
 import Network from "./Network";
-import NetLinked from "./views/NetLinked";
 import Timeline from "./Timeline";
 import { DataPanel, LearnPanel } from "./Panel";
 import Icon from "./icons";
@@ -72,7 +71,7 @@ const roundSpeed = (v) => Math.min(RATE_MAX, Math.max(RATE_MIN, v < 10 ? Math.ro
 const fmt = (v) => (v == null || !Number.isFinite(v) ? "—" : v !== 0 && v < 0.001 ? v.toExponential(1) : v.toFixed(4));
 const pct = (v) => (v == null ? "—" : `${(v * 100).toFixed(1)}`);
 
-export default function Playground({ study = null }) {
+export default function Playground() {
   // /playground/linked tries the schematic with each layer's space under it; /playground is untouched
   // It opens empty and paused: the first thing to do is give the network something to learn,
   // and the screen says so. Nothing trains until the visitor asks it to.
@@ -602,7 +601,7 @@ export default function Playground({ study = null }) {
 
       <header className="pg-head">
         <a className="look-mark" href="/">visualML</a>
-        <h1 className="pg-title">playground{study && <span className="pgl-study"> · {study} study</span>}</h1>
+        <h1 className="pg-title">playground</h1>
         <p className="pg-say">A network you build, learning in this tab. Every unit draws its own cut.</p>
         <nav className="look-source pg-source"><a href={REPO} target="_blank" rel="noreferrer">source</a></nav>
       </header>
@@ -664,19 +663,11 @@ export default function Playground({ study = null }) {
 
           {tab === "network" ? (
             <>
-              {study === "linked" ? (
-                <NetLinked
-                  view={view} layers={config.layers} classes={config.classes} probe={probe} lens={lens} wave={wave}
-                  pinned={pinnedLens} points={points} at={at} engineKey={KEY}
-                  onLens={setHoverLens} onPin={pin} onUnits={onUnits} onAct={onAct} onStatus={setStatus}
-                />
-              ) : (
-                <Network
-                  view={view} layers={config.layers} classes={config.classes} probe={probe} lens={lens} wave={wave}
-                  pinned={pinnedLens}
-                  onLens={setHoverLens} onPin={pin} onUnits={onUnits} onAct={onAct} onStatus={setStatus}
-                />
-              )}
+              <Network
+                view={view} layers={config.layers} classes={config.classes} probe={probe} lens={lens} wave={wave}
+                pinned={pinnedLens} points={points} at={at} engineKey={KEY}
+                onLens={setHoverLens} onPin={pin} onUnits={onUnits} onAct={onAct} onStatus={setStatus}
+              />
               <p className="pg-status" aria-live="polite">
                 {status ?? (wave != null
                   ? `forward pass · ${wave === 0 ? "the input" : wave > config.layers.length ? "the output" : `layer ${wave}`}`
