@@ -1,0 +1,63 @@
+% visualML: a machine-learning engine written from scratch, and running in the browser.
+%
+% Build:   cd paper && python make_tables.py && latexmk -pdf main.tex
+%          (or: pdflatex main && bibtex main && pdflatex main && pdflatex main)
+% Every number in the experiments section is generated: the MNIST table by make_tables.py from the
+% files the training script writes (web/public/recognize/*.json), and the rest, with the figures,
+% by experiments.ipynb. None is typed by hand.
+
+\documentclass[11pt]{article}
+
+\usepackage[a4paper, margin=2.6cm]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{microtype}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage{float}             % [H]: tables and figures stay where they are written
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{xcolor}
+\usepackage{listings}
+\usepackage[hidelinks]{hyperref}
+
+\lstset{basicstyle=\ttfamily\small, columns=fullflexible, keepspaces=true, frame=none,
+        xleftmargin=1.5em, showstringspaces=false}
+
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\T}{^{\top}}
+\newcommand{\dL}[1]{\frac{\partial L}{\partial #1}}  % the gradient of the loss with respect to #1
+\newcommand{\code}[1]{\texttt{#1}}
+
+\title{\textbf{visualML}\\[2pt]\large A reverse-mode autodiff engine, its optimizers, and running it in the browser}
+\author{Roberto Nsoni}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+visualML is a small machine-learning engine written from scratch on top of NumPy: a tensor with
+reverse-mode automatic differentiation, layers, losses, first-order optimizers (SGD, momentum,
+RMSProp, Adam) and second-order ones (BFGS and damped Newton with a finite-difference Hessian)
+under a strong-Wolfe line search. The same package runs unmodified in the browser through Pyodide,
+where a website uses it to train and inspect networks live. This document derives every operation
+and update rule exactly as implemented, describes how the implementation is verified, and reports
+results on MNIST.
+\end{abstract}
+
+\input{sections/01-introduction}
+\input{sections/02-autodiff}
+\input{sections/03-operations}
+\input{sections/04-losses}
+\input{sections/05-optimizers}
+\input{sections/06-verification}
+\input{sections/07-browser}
+\input{sections/08-experiments}
+\input{sections/09-reproducibility}
+
+\bibliographystyle{plain}
+\bibliography{refs}
+
+\end{document}

@@ -1,0 +1,48 @@
+\section{Verification}
+\label{sec:verification}
+
+\subsection{Gradient checking}
+Every differentiable operation is tested against a numerical gradient before it is used. For a
+tensor $t$ and a function $F$ whose output is summed to a scalar, each entry of the analytical
+gradient is compared with the central difference
+\begin{equation}
+  \frac{\partial}{\partial t_i}\sum F(t) \approx \frac{\sum F(t + \epsilon e_i) - \sum F(t - \epsilon e_i)}{2\epsilon},
+  \qquad \epsilon = 10^{-6},
+\end{equation}
+with an absolute tolerance of $10^{-6}$ ($10^{-5}$ for the full convolutional network). Inputs are
+weighted by fixed random tensors before summing, so that every output position contributes
+differently and a gradient routed to the wrong place cannot pass by symmetry. Besides each operation
+on its own, the checks cover composite graphs (a shared sub-expression, a diamond), an MLP with
+cross-entropy, and a complete convolutional network (convolution, ReLU, max-pool, reshape, linear,
+cross-entropy) with respect to every parameter. The convolution is additionally compared with a
+direct, loop-by-loop evaluation of its definition.
+
+\subsection{Test inventory}
+% TODO(author): regenerate this table if tests are added (pytest --collect-only -q).
+\begin{center}
+\begin{tabular}{@{}lr@{}}
+\toprule
+file & tests \\
+\midrule
+\code{test\_autograd.py} (gradient checks)         & 24 \\
+\code{test\_tensor.py}                             & 20 \\
+\code{test\_surfaces.py}                           & 14 \\
+\code{test\_optim.py}                              & 13 \\
+\code{test\_viz.py}                                & 11 \\
+\code{test\_training.py}                           & 10 \\
+\code{test\_module.py}                             & 8 \\
+\code{test\_recorder.py}                           & 8 \\
+\code{test\_loss.py}                               & 7 \\
+\code{test\_linreg.py}                             & 6 \\
+\code{test\_linesearch.py}                         & 5 \\
+\code{test\_serialize.py}                          & 3 \\
+\code{test\_data.py}                               & 1 \\
+\midrule
+total                                              & 130 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Beyond gradients, linear regression trained with the engine converges to the closed-form
+least-squares solution (tested, and measured for every optimizer in Section~\ref{sec:linreg}), and the
+line search is tested against the Wolfe conditions it claims.

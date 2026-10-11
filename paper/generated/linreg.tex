@@ -1,0 +1,18 @@
+\begin{table}[H]
+\centering
+\begin{tabular}{@{}lrrrr@{}}
+\toprule
+ & \multicolumn{2}{c}{well conditioned} & \multicolumn{2}{c}{scales 1, 10, 100} \\
+\cmidrule(lr){2-3} \cmidrule(l){4-5}
+optimizer & steps to $10^{-6}$ & final error & steps to $10^{-6}$ & final error \\
+\midrule
+SGD & 9 & 9.2e-16 & -- & 2.5e+00 \\
+Momentum & 270 & 7.8e-12 & -- & 1.5e+00 \\
+Adam & 286 & 2.0e-11 & 379 & 4.5e-09 \\
+BFGS & 7 & 9.2e-10 & 8 & 2.4e-10 \\
+Newton & 2 & 2.9e-13 & 2 & 1.3e-13 \\
+\bottomrule
+\end{tabular}
+\caption{Linear regression with the engine against the normal equations: the number of steps until $\|w - w^*\| < 10^{-6}$ (-- if never, in 500 steps for the first-order methods and 30 for BFGS and Newton) and the distance at the end. Condition numbers 1.2 and 9310.}
+\label{tab:linreg}
+\end{table}

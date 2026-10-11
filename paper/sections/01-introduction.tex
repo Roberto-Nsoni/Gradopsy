@@ -1,0 +1,31 @@
+\section{Introduction}
+\label{sec:intro}
+
+Most people who train neural networks never see the machinery that makes it possible: the graph
+that records every operation, the chain rule applied backwards through it, the update rule that
+turns a gradient into a step. visualML is that machinery written out, small enough to be read in an
+afternoon, and complete enough to reach the accuracy one expects on MNIST
+(Section~\ref{sec:experiments}).
+
+The project has two halves that share one codebase.
+\begin{itemize}
+  \item \textbf{The engine} (\code{src/ml/}): a \code{Tensor} type with reverse-mode automatic
+        differentiation (Section~\ref{sec:autodiff}), a set of differentiable operations
+        (Section~\ref{sec:ops}), modules and losses (Section~\ref{sec:losses}), and six optimizers
+        with a line search (Section~\ref{sec:optim}). It depends on nothing but NumPy.
+  \item \textbf{The website} (\code{web/}), which loads the same Python package into the browser
+        with Pyodide (Section~\ref{sec:browser}) and uses it to train networks live, and to take a
+        trained one apart number by number.
+\end{itemize}
+
+Two rules shape the code. Every differentiable operation is checked against a numerical gradient
+before it is used (Section~\ref{sec:verification}). And nothing the website shows is reimplemented
+in JavaScript: the page asks the engine, and draws what it answers.
+
+The mathematics in this document is what the author learnt in the first two years of the
+Bachelor's Degree in Data Science and Engineering (GCED) at the Universitat Polit\`ecnica de
+Catalunya: linear algebra~\cite{upc-alg}, mathematical optimisation~\cite{upc-om}, machine
+learning~\cite{upc-aa1} and audiovisual processing~\cite{upc-ipa}. The original papers and books
+are cited where each method appears.
+
+% TODO(author): one paragraph on motivation and on what you learnt building it.

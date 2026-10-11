@@ -1,0 +1,29 @@
+\section{Losses}
+\label{sec:losses}
+
+\subsection{Mean squared error}
+$L = \frac{1}{N}\sum_{i} (\hat y_i - y_i)^2$, composed from subtraction, power and mean, so its
+gradient follows from Section~\ref{sec:ops}.
+
+\subsection{Cross-entropy from logits}
+For logits $z \in \R^{N\times K}$ and integer labels $y \in \{0,\dots,K-1\}^N$, the softmax
+$p_{ik} = e^{z_{ik}} / \sum_j e^{z_{ij}}$ and the cross-entropy~\cite{upc-aa1} are fused into one operation:
+\begin{equation}
+  L = \frac{1}{N}\sum_{i=1}^{N}\Big(-z_{i,y_i} + \log\sum_{j} e^{z_{ij}}\Big).
+\end{equation}
+The log-sum-exp is evaluated as $m_i + \log\sum_j e^{z_{ij} - m_i}$ with $m_i = \max_j z_{ij}$, which
+leaves the value unchanged and keeps the exponentials from overflowing. Differentiating,
+\begin{equation}
+  \frac{\partial L}{\partial z_{ik}} = \frac{1}{N}\big(p_{ik} - Y_{ik}\big),
+\end{equation}
+where $Y_{ik}$ is $1$ if $k$ is the label of example $i$ and $0$ otherwise (the one-hot labels). So
+the backward pass is the softmax minus the one-hot labels, divided by the batch size, without
+ever building the softmax into the graph. This is both cheaper and numerically safer than composing
+a softmax with a logarithm.
+
+\subsection{Binary cross-entropy from logits}
+For a single logit $z$ and a label $y\in\{0,1\}$, in the stable form
+\begin{equation}
+  L = \frac{1}{N}\sum_i \Big(\max(z_i, 0) - z_i y_i + \log\big(1 + e^{-|z_i|}\big)\Big),
+  \qquad \frac{\partial L}{\partial z_i} = \frac{\sigma(z_i) - y_i}{N}.
+\end{equation}

@@ -1,0 +1,15 @@
+\section{Reproducibility}
+\label{sec:reproducibility}
+
+Everything in this document can be regenerated from the repository.
+\begin{lstlisting}
+pytest -q                                  # 130 tests, including every gradient check
+python scripts/get_mnist.py                # MNIST into data/raw/mnist, md5-checked
+python scripts/train_mnist.py --report     # both models x 3 seeds -> web/public/recognize/
+cd paper && python make_tables.py          # the MNIST table of section 8 from those files
+jupyter nbconvert --to notebook --execute --inplace experiments.ipynb
+                                           # linear regression, curves, shifts (~20 min)
+latexmk -pdf main.tex
+\end{lstlisting}
+Training is deterministic given the seed. The published weights, the training logs and the
+per-seed results are in \code{web/public/recognize/}.

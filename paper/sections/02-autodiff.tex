@@ -1,0 +1,59 @@
+\section{Tensor class}
+\label{sec:autodiff}
+
+\subsection{Definition}
+A \code{Tensor} holds an array \code{data} (always \code{float64}), a flag \code{requires\_grad},
+and, when the flag is set, three things about how it was made: the set of tensors it was computed
+from (\code{\_prev}), a closure \code{\_backward}, and the name of the operation. Every operation
+on tensors returns a new tensor, and if any input requires a gradient it records those three
+fields. A forward pass therefore builds a directed acyclic graph whose leaves are the inputs and
+the parameters, and whose root is, in training, the scalar loss $L$.
+
+\subsection{The backward pass}
+For a tensor $u$ in the graph, $\dL{u}$ is the gradient of the loss with respect to it: an array
+with the same shape as $u$, stored in \code{u.grad}. If $v$ was computed from $u$ and $\dL{v}$ is
+already known, the chain rule gives
+\begin{equation}
+  \frac{\partial L}{\partial u} = J\T\, \frac{\partial L}{\partial v},
+  \qquad J = \frac{\partial v}{\partial u},
+  \label{eq:chain}
+\end{equation}
+with $u$ and $v$ read as flat vectors and $J$ the Jacobian of $v$ with respect to $u$. This product
+of a vector with the Jacobian is what each operation's \code{\_backward} computes for each of its
+inputs, without ever building $J$: for an elementwise operation it is diagonal, and the product is
+just another elementwise operation on arrays.
+
+A tensor used by more than one operation receives a gradient from each, and by the chain rule they
+add up. That is why every \code{\_backward} does \code{u.grad += \dots} and never \code{u.grad = \dots}.
+
+\code{Tensor.backward()} first orders the graph topologically with an iterative depth-first
+search, then sets $\partial L/\partial L = 1$ and calls \code{\_backward} on every node in reverse
+topological order, so that each node's gradient is complete before it is passed on to its inputs.
+
+\begin{algorithm}[H]
+\caption{\code{Tensor.backward} (reverse mode)}
+\begin{algorithmic}[1]
+\State $\textit{order} \gets$ topological order of the graph reachable from $L$
+\State \code{L.grad} $\gets 1$
+\For{$v$ in reverse(\textit{order})}
+  \State $v.\code{\_backward}()$ \Comment{adds its part of the gradient to the \code{.grad} of each input}
+\EndFor
+\end{algorithmic}
+\end{algorithm}
+
+Gradients are allocated lazily (as zeros, the first time they are read) and must be reset between
+steps with \code{zero\_grad()}, which every optimizer does before evaluating the loss.
+
+\subsection{Broadcasting}
+NumPy broadcasting lets $a \in \R^{n\times m}$ be added to $b \in \R^{m}$. The forward is free; the
+backward is not, because \code{b.grad} must have the shape of $b$. Since $b$ was copied along the
+broadcast axes, its gradient is the sum of the incoming gradient over them. \code{reduce\_grad}
+implements exactly this: it sums over the leading axes that broadcasting added, and over every axis
+where $b$ had size $1$ but the result did not.
+
+\subsection{Freezing a model}
+A trained model used only for predictions does not need a graph: building one keeps every
+intermediate array alive for a backward pass that never comes. \code{Module.freeze()} sets
+\code{requires\_grad = False} on every parameter, after which a forward pass on a plain input
+records nothing. A gradient with respect to an input that does require one is still computed
+exactly, which is all that a saliency map needs.

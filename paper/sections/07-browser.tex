@@ -1,0 +1,24 @@
+\section{Running in the browser}
+\label{sec:browser}
+
+The website is static: there is no server to train on. Instead, the engine itself runs in the
+visitor's browser. Pyodide~\cite{pyodide} is CPython and NumPy compiled to WebAssembly; the page
+downloads it once (about 15\,MB), installs the visualml wheel with \code{micropip}, and loads a
+bridge module (\code{web/src/engine.py}) that exposes a few functions to JavaScript. Nothing about
+the mathematics is reimplemented in JavaScript: the page only sends inputs across and draws the
+arrays that come back.
+
+\paragraph{Identical numbers.} Running the same optimizer races and MLP training in native Python
+and in Pyodide produces bit-identical results (measured in \code{web/spike/}), which is expected:
+both execute the same NumPy code on IEEE~754 doubles.
+
+\paragraph{Speed.} Pyodide runs about $2.5$--$2.9\times$ slower than native for this workload; a
+step of a small MLP takes about $2.4$\,ms, fast enough to train live inside animation frames. The
+page advances training a few milliseconds per frame, so the tab never blocks.
+
+\paragraph{What runs where.} The playground trains small MLPs live in the tab. The MNIST networks of
+Section~\ref{sec:experiments} are trained offline with the same engine
+(\code{scripts/train\_mnist.py}); the page loads their weights and computes every prediction,
+saliency map and intermediate activation it shows with the engine, in the tab.
+
+% TODO(author): a diagram of the bridge (page <-> engine.py <-> ml package).

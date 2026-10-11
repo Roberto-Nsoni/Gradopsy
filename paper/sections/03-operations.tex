@@ -1,0 +1,94 @@
+\section{Operations}
+\label{sec:ops}
+
+Each operation is listed with its forward rule and the gradient it sends to each of its inputs,
+following \eqref{eq:chain}, written on whole arrays. $a \ast b$ is the \emph{elementwise} product,
+entry by entry (NumPy's \code{a * b}); $AB$, with nothing between the factors, is the matrix
+product (\code{A @ B}); functions and powers of an array, such as $a^{p}$, $\beta^{a}$ or
+$\tfrac{1}{a}$, act on each entry; and $[\,\text{condition}\,]$ is the array that is $1$ where the
+condition holds and $0$ elsewhere (a boolean array used as numbers). When an input was broadcast,
+its gradient is then summed over the broadcast axes by \code{reduce\_grad}
+(Section~\ref{sec:autodiff}).
+
+\subsection{Elementwise and linear algebra}
+\begin{center}
+\renewcommand{\arraystretch}{2.4}\renewcommand{\dL}[1]{\dfrac{\partial L}{\partial #1}}  % full-size fractions in the tables
+\begin{tabular}{@{}lll@{}}
+\toprule
+operation & forward & gradient \\
+\midrule
+negation       & $v = -a$                  & $\dL{a} = -\dL{v}$ \\
+addition       & $v = a + b$               & $\dL{a} = \dL{v}$,\ \ $\dL{b} = \dL{v}$ \\
+product        & $v = a \ast b$            & $\dL{a} = \dL{v} \ast b$,\ \ $\dL{b} = \dL{v} \ast a$ \\
+power ($p\in\mathbb{Z}$) & $v = a^{p}$     & $\dL{a} = \dL{v} \ast p\, a^{p-1}$ \\
+exponential    & $v = \beta^{a}$           & $\dL{a} = \dL{v} \ast \beta^{a} \ln\beta$ \quad ($\beta = e$ by default) \\
+logarithm      & $v = \log_\beta a$        & $\dL{a} = \dL{v} \ast \dfrac{1}{a \ln \beta}$ \\
+sum            & $v = \sum_{\text{axes}} a$ & $\dL{a} = \dL{v}$ broadcast back to the shape of $a$ \\
+mean           & $v = \tfrac{1}{N}\sum_{\text{axes}} a$ & $\dL{a} = \tfrac{1}{N}\, \dL{v}$ broadcast back \\
+transpose      & $V = A\T$                 & $\dL{A} = (\dL{V})\T$ \\
+reshape        & $V = \operatorname{reshape}(A)$ & $\dL{A} = \operatorname{reshape}(\dL{V}, \operatorname{shape}(A))$ \\
+matrix product & $V = AB$                  & $\dL{A} = \dL{V}\, B\T$,\ \ $\dL{B} = A\T\, \dL{V}$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+Subtraction and division are composed from these ($a - b = a + (-b)$, $a/b = a \ast b^{-1}$).
+\code{sum} and \code{mean} keep the reduced axes (\code{keepdims}), which makes the broadcast back in
+the backward pass exact; for \code{mean}, $N$ is the number of elements averaged.
+
+\subsection{Activations}
+\begin{center}
+\renewcommand{\arraystretch}{2.4}\renewcommand{\dL}[1]{\dfrac{\partial L}{\partial #1}}  % full-size fractions in the tables
+\begin{tabular}{@{}lll@{}}
+\toprule
+activation & forward & gradient \\
+\midrule
+ReLU    & $v = \max(0, a)$                 & $\dL{a} = \dL{v} \ast [\,a > 0\,]$ \\
+sigmoid & $v = \sigma(a) = 1/(1 + e^{-a})$ & $\dL{a} = \dL{v} \ast v \ast (1 - v)$ \\
+tanh    & $v = \tanh a$                    & $\dL{a} = \dL{v} \ast (1 - v^2)$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+Sigmoid and tanh reuse their own output $v$ in the backward pass instead of recomputing it.
+
+\subsection{Linear layers}
+\code{Linear(n\_in, n\_out)} computes $Y = XW + b$ for a batch $X \in \R^{N\times n_\text{in}}$,
+with $W \in \R^{n_\text{in}\times n_\text{out}}$ and $b \in \R^{n_\text{out}}$ broadcast over the
+batch. It is composed of a matrix product and an addition, so its gradients come from the table
+above; in particular $\dL{b_j} = \sum_{n} \dL{Y_{nj}}$, the sum over the batch that \code{reduce\_grad} does. Weights are
+initialised as $W_{ij} \sim \mathcal{N}(0, 2/n_\text{in})$ (He initialisation~\cite{he2015}) and
+biases as zero. \code{MLP}~\cite{upc-aa1} chains \code{Linear} layers with an activation between consecutive ones
+and none after the last, which therefore outputs logits.
+
+\subsection{Convolution}
+\code{conv2d} takes $x \in \R^{N\times C\times H\times W}$, a filter bank
+$w \in \R^{O\times C\times k_h\times k_w}$ and a bias $b \in \R^{O}$, stride $1$ and zero padding
+$p$. With $\tilde x$ the padded input, it computes the cross-correlation (as every framework does,
+under the name of convolution~\cite{upc-ipa})
+\begin{equation}
+  y_{n,o,i,j} = b_o + \sum_{c}\sum_{u=0}^{k_h-1}\sum_{v=0}^{k_w-1} w_{o,c,u,v}\,\tilde x_{n,c,i+u,j+v}.
+\end{equation}
+Rather than visiting every output position, the implementation loops over the $k_h k_w$ kernel
+offsets $(u, v)$: for each, the shifted slice $\tilde x_{:,:,u:u+H_o,\,v:v+W_o}$ is contracted with
+the $O\times C$ matrix $w_{:,:,u,v}$ over the channel axis (one \code{einsum}). The gradients are
+\begin{align}
+  \frac{\partial L}{\partial w_{o,c,u,v}} &= \sum_{n,i,j} \frac{\partial L}{\partial y_{n,o,i,j}}\,\tilde x_{n,c,i+u,j+v}, \\
+  \frac{\partial L}{\partial \tilde x_{n,c,r,s}} &= \sum_{o}\sum_{u,v} \frac{\partial L}{\partial y_{n,o,r-u,s-v}}\, w_{o,c,u,v}, \\
+  \frac{\partial L}{\partial b_o} &= \sum_{n,i,j} \frac{\partial L}{\partial y_{n,o,i,j}},
+\end{align}
+where the second sum only has the terms for which $(r-u, s-v)$ is a position of the output: an input
+pixel receives a gradient from every output that used it. The code computes them with the same loop
+over $(u, v)$ as the forward pass, adding each offset's share into \code{x.grad}, and finally cuts the
+padding off.
+
+\subsection{Max pooling}
+\code{maxpool2d(k)} reshapes each $k\times k$ block of the input into its own axes and takes the
+maximum over them, $y_{n,c,i,j} = \max_{0\le u,v<k} x_{n,c,ki+u,\,kj+v}$. Writing
+$\operatorname{up}(\cdot)$ for repeating every value $k$ times along both spatial axes (so that it
+covers its block again), the gradient is
+\begin{equation}
+  \frac{\partial L}{\partial x} = \operatorname{up}\!\Big(\frac{\partial L}{\partial y}\Big) \ast \big[\,x = \operatorname{up}(y)\,\big],
+\end{equation}
+which is exactly the code: \code{mask = x == y.repeat(k, 2).repeat(k, 3)}, times the gradient
+repeated the same way. It flows only to the position that won each block. If two values of a block
+tie for the maximum, both receive it; with real-valued inputs this has probability zero. A max-pool
+has no parameters.

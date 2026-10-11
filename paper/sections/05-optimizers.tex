@@ -1,0 +1,69 @@
+\section{Optimizers}
+\label{sec:optim}
+
+All optimizers act on the list of parameter tensors of a model. Write $x_k$ for all parameters
+flattened into one vector and $g_k = \nabla f(x_k)$ for the gradient of the loss there, computed by
+a \emph{closure} that zeroes the gradients, runs the forward pass and calls \code{backward()}.
+The methods and their notation follow~\cite{upc-om, nocedal2006}.
+
+\subsection{First order}
+With learning rate $\alpha$:
+\begin{align}
+  \text{SGD:}\quad & x_{k+1} = x_k - \alpha g_k, \\
+  \text{Momentum:}\quad & v_{k+1} = \beta v_k + g_k, \qquad x_{k+1} = x_k - \alpha v_{k+1}
+                         \quad(\beta = 0.9), \\
+  \text{RMSProp:}\quad & r_{k+1} = \rho r_k + (1-\rho) g_k^2, \qquad
+                         x_{k+1} = x_k - \alpha \frac{g_k}{\sqrt{r_{k+1}} + \varepsilon}
+                         \quad(\rho = 0.9,\ \varepsilon = 10^{-8}),
+\end{align}
+and Adam~\cite{kingma2015}, momentum and RMSProp together with bias correction:
+\begin{equation}
+\begin{gathered}
+  m_k = \beta_1 m_{k-1} + (1-\beta_1) g_k, \qquad v_k = \beta_2 v_{k-1} + (1-\beta_2) g_k^2, \\
+  \hat m_k = \frac{m_k}{1 - \beta_1^k}, \qquad \hat v_k = \frac{v_k}{1-\beta_2^k}, \qquad
+  x_{k+1} = x_k - \alpha \frac{\hat m_k}{\sqrt{\hat v_k} + \varepsilon},
+\end{gathered}
+\end{equation}
+with $\beta_1 = 0.9$, $\beta_2 = 0.999$, $\varepsilon = 10^{-8}$. Squares and square roots are
+elementwise.
+
+\paragraph{Learning-rate schedule.} \code{LinearDecay} decays the rate linearly from $\alpha_0$ to
+$0.01\,\alpha_0$ over the first $k_{ld}$ steps and keeps it there:
+$\alpha_k = (1 - k/k_{ld})\,\alpha_0 + (k/k_{ld})\, 0.01\,\alpha_0$ for $k \le k_{ld}$.
+
+\subsection{Line search}
+The second-order methods choose their step length $\alpha$ along a direction $d$ with a line search
+satisfying the strong Wolfe conditions~\cite{nocedal2006}:
+\begin{align}
+  f(x + \alpha d) &\le f(x) + c_1 \alpha\, g(x)\T d, \tag{W1}\\
+  |g(x + \alpha d)\T d| &\le c_2\, |g(x)\T d|. \tag{W2}
+\end{align}
+The implementation (\code{blsnw32}) follows Nocedal and Wright's Algorithms 3.5 and 3.6: a
+bracketing phase that doubles $\alpha$ while $f$ keeps decreasing, then a zoom that shrinks the
+bracket by bisection until both conditions hold. $c_1 = 10^{-4}$ throughout.
+
+\subsection{BFGS}
+BFGS keeps an approximation $H_k$ of the \emph{inverse} Hessian, starting from $H_0 = I$, and moves
+along $d_k = -H_k g_k$. After a step $s_k = \alpha_k d_k$ with change in gradient
+$y_k = g_{k+1} - g_k$, it updates
+\begin{equation}
+  H_{k+1} = (I - \rho_k s_k y_k\T)\, H_k\, (I - \rho_k y_k s_k\T) + \rho_k s_k s_k\T,
+  \qquad \rho_k = \frac{1}{y_k\T s_k}.
+\end{equation}
+The Wolfe conditions guarantee $y_k\T s_k > 0$; near the minimum both $s_k$ and $y_k$ vanish and the
+update is skipped when $y_k\T s_k \le 10^{-12}$. The first trial step of the line search is $1$, and
+afterwards $\alpha_{\max} = 2(f_k - f_{k-1})/(g_k\T d_k)$ (falling back to $1$ if not positive).
+Here $c_2 = 0.1$.
+
+\subsection{Damped Newton}
+Newton's method fits the local quadratic $m(p) = f + g\T p + \tfrac12 p\T (H + \lambda I) p$ and
+moves to its minimiser, $d = -(H + \lambda I)^{-1} g$, the solution of a linear system~\cite{upc-alg}. The Hessian is approximated by forward finite
+differences of the analytical gradient,
+\begin{equation}
+  H_{:,i} \approx \frac{g(x + h e_i) - g(x)}{h}, \qquad h = 10^{-5},
+\end{equation}
+and symmetrised as $(H + H\T)/2$, at a cost of $n+1$ gradient evaluations. The damping starts at
+$\lambda = 10^{-3}$ and is multiplied by $10$ until $d$ is a descent direction ($d\T g < 0$), which
+handles non-convex regions. The step length comes from the same line search with $c_2 = 0.9$.
+Newton and BFGS are only practical for small models, and all second-order methods require full-batch
+gradients: minibatch noise destroys the curvature estimate.

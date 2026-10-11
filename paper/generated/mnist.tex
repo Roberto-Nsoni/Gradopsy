@@ -1,0 +1,13 @@
+\begin{table}[H]
+\centering
+\begin{tabular}{@{}lrrrlrr@{}}
+\toprule
+model & parameters & epochs & test accuracy (\%) & per seed & moved test (\%) & min / run \\
+\midrule
+MLP & 235,146 & 15 & $98.48 \pm 0.09$ & 98.49, 98.39, 98.56 & $97.38 \pm 0.02$ & 3.9 \\
+CNN & 11,274 & 10 & $98.65 \pm 0.17$ & 98.85, 98.58, 98.53 & $97.49 \pm 0.20$ & 17.7 \\
+\bottomrule
+\end{tabular}
+\caption{MNIST test accuracy, mean $\pm$ sample standard deviation over three seeds, on the test set as published and on the same digits moved and resized once with a fixed seed (moved test). Time is CPU training time in native Python.}
+\label{tab:mnist}
+\end{table}

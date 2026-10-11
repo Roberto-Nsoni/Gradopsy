@@ -1,0 +1,16 @@
+\begin{table}[H]
+\centering
+\begin{tabular}{@{}lrrrrrrrr@{}}
+\toprule
+ & \multicolumn{7}{c}{horizontal shift (pixels)} & \\
+\cmidrule(lr){2-8}
+model & $-6$ & $-4$ & $-2$ & $0$ & $+2$ & $+4$ & $+6$ & moved test \\
+\midrule
+CNN, no augmentation & 47.9 & 75.5 & 96.8 & 99.0 & 97.4 & 81.7 & 35.7 & 81.98 \\
+CNN (published) & 93.2 & 97.5 & 98.4 & 98.9 & 98.5 & 97.2 & 88.9 & 97.72 \\
+MLP (published) & 84.1 & 96.7 & 98.3 & 98.5 & 98.3 & 95.9 & 82.4 & 97.38 \\
+\bottomrule
+\end{tabular}
+\caption{MNIST test accuracy (\%) with every digit moved sideways, and on the moved-and-resized test set of Table~\ref{tab:mnist}. The CNN without augmentation is the same network, seed and schedule as the published one, trained on the digits as they are; one seed.}
+\label{tab:shift}
+\end{table}
