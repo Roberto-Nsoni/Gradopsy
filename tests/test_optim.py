@@ -1,8 +1,8 @@
 import numpy as np
 
-from ml.tensor import Tensor
-from ml.optim import SGD, Momentum, RMSProp, Adam, BFGS, Newton, LinearDecay
-from ml.optim import flat_params, set_flat_params, flat_grad, hessian_fd
+from visualml.tensor import Tensor
+from visualml.optim import SGD, Momentum, RMSProp, Adam, BFGS, Newton, LinearDecay
+from visualml.optim import flat_params, set_flat_params, flat_grad, hessian_fd
 
 # Toy convex problem: f(x) = 1/2 x'Ax - b'x, minimum at A^-1 b.
 A = np.array([[4.0, 1.0], [1.0, 3.0]])

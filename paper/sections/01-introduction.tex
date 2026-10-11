@@ -9,11 +9,11 @@ afternoon, and complete enough to reach the accuracy one expects on MNIST
 
 The project has two halves that share one codebase.
 \begin{itemize}
-  \item \textbf{The engine} (\code{src/ml/}): a \code{Tensor} type with reverse-mode automatic
+  \item \textbf{The engine} (\code{src/visualml/}): a \code{Tensor} type with reverse-mode automatic
         differentiation (Section~\ref{sec:autodiff}), a set of differentiable operations
         (Section~\ref{sec:ops}), modules and losses (Section~\ref{sec:losses}), and six optimizers
         with a line search (Section~\ref{sec:optim}). It depends on nothing but NumPy.
-  \item \textbf{The website} (\code{web/}), which loads the same Python package into the browser
+  \item \textbf{The website} (\code{demos/}), which loads the same Python package into the browser
         with Pyodide (Section~\ref{sec:browser}) and uses it to train networks live, and to take a
         trained one apart number by number.
 \end{itemize}

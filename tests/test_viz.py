@@ -1,13 +1,13 @@
 import numpy as np
 
-from ml.tensor import Tensor
-from ml.nn import Linear, MLP, ReLU, CrossEntropyFromLogits
-from ml.optim import Adam
-from ml.training import Trainer
-from ml.optim import flat_params
-from ml.data import make_spirals
-from ml.viz import make_grid, predict_grid, layer_hyperplanes
-from ml.viz import random_directions, trajectory_directions, loss_surface, project_trajectory
+from visualml.tensor import Tensor
+from visualml.nn import Linear, MLP, ReLU, CrossEntropyFromLogits
+from visualml.optim import Adam
+from visualml.training import Trainer
+from visualml.optim import flat_params
+from visualml.data import make_spirals
+from visualml.viz import make_grid, predict_grid, layer_hyperplanes
+from visualml.viz import random_directions, trajectory_directions, loss_surface, project_trajectory
 
 np.random.seed(0)
 

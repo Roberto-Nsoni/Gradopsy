@@ -2,7 +2,7 @@ import gzip
 
 import numpy as np
 
-from ml.data import load_mnist
+from visualml.data import load_mnist
 
 
 def test_load_mnist(tmp_path):

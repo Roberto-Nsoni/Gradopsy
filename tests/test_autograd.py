@@ -1,7 +1,7 @@
 import numpy as np
 
-from ml.tensor import Tensor
-from ml.nn import MLP, ReLU, Tanh, CrossEntropyFromLogits
+from visualml.tensor import Tensor
+from visualml.nn import MLP, ReLU, Tanh, CrossEntropyFromLogits
 
 rng = np.random.default_rng(0)
 
@@ -178,7 +178,7 @@ def test_maxpool2d():
 
 def test_small_cnn_with_cross_entropy():
     """conv -> relu -> pool -> flatten -> linear -> CE, every parameter checked end to end."""
-    from ml.nn import Conv2D, MaxPool2D, Flatten, Sequential, Linear
+    from visualml.nn import Conv2D, MaxPool2D, Flatten, Sequential, Linear
     np.random.seed(1)
     net = Sequential(Conv2D(1, 2, 3, padding=1), ReLU(), MaxPool2D(2), Flatten(), Linear(2 * 2 * 2, 3))
     X = Tensor(rng.normal(size=(3, 1, 4, 4)))
@@ -191,7 +191,7 @@ def test_small_cnn_with_cross_entropy():
 
 def test_freeze():
     """A frozen model builds no graph through its weights, but still differentiates its input."""
-    from ml.nn import Sequential, Linear
+    from visualml.nn import Sequential, Linear
     np.random.seed(2)
     net = Sequential(Linear(3, 4), Tanh(), Linear(4, 2))
     net.freeze()

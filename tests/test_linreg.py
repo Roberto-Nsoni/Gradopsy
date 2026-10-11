@@ -1,8 +1,8 @@
 import numpy as np
 
-from ml.tensor import Tensor
-from ml.nn import Linear, MSE
-from ml.optim import SGD
+from visualml.tensor import Tensor
+from visualml.nn import Linear, MSE
+from visualml.optim import SGD
 
 N = 200   # number of samples
 P = 3     # number of features

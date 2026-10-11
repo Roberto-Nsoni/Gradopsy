@@ -8,7 +8,7 @@ import json
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
-RESULTS = HERE.parent / "web" / "public" / "recognize"
+RESULTS = HERE.parent / "demos" / "public" / "recognize"
 OUT = HERE / "generated"
 
 

@@ -9,7 +9,7 @@ that runs that same engine in the browser, through Pyodide, to show it working.
 Nothing of the mathematics is reimplemented in JavaScript: the page loads the Python package and
 asks it for every number it draws.
 
-## The engine (`src/ml/`)
+## The engine (`src/visualml/`)
 
 - **Autograd.** A `Tensor` records the graph as operations run, and `backward()` walks it in
   reverse topological order, applying each operation's own gradient rule. Broadcasting is handled
@@ -25,7 +25,7 @@ asks it for every number it draws.
 
 Every operation is checked against a numerical gradient before it is used: 130 tests in total.
 
-## The website (`web/`)
+## The website (`demos/`)
 
 Vite + React, with the engine loaded into the page by Pyodide.
 
@@ -38,7 +38,7 @@ Vite + React, with the engine loaded into the page by Pyodide.
 ## Results
 
 MNIST test accuracy, mean ± standard deviation over three seeds, measured on the float32 weights
-the website loads (`web/public/recognize/results.json`):
+the website loads (`demos/public/recognize/results.json`):
 
 | model | parameters | test accuracy | moved and resized test |
 |---|---:|---:|---:|
@@ -64,7 +64,7 @@ pip install -e ".[dev]"
 pytest -q                                  # the 130 tests
 
 python scripts/get_mnist.py                # MNIST into data/raw/mnist
-python scripts/train_mnist.py --report     # both models x 3 seeds -> web/public/recognize/
+python scripts/train_mnist.py --report     # both models x 3 seeds -> demos/public/recognize/
 
 cd paper
 python make_tables.py

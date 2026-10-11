@@ -1,9 +1,9 @@
 import numpy as np
 
-from ml.tensor import Tensor
-from ml.data import SURFACES
-from ml.optim import SGD, Momentum, RMSProp, Adam, BFGS, Newton
-from ml.training import SurfaceRunner, Recorder
+from visualml.tensor import Tensor
+from visualml.data import SURFACES
+from visualml.optim import SGD, Momentum, RMSProp, Adam, BFGS, Newton
+from visualml.training import SurfaceRunner, Recorder
 
 
 def numeric_gradient(f, x, y, h=1e-6):

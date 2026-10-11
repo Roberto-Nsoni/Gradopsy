@@ -1,8 +1,8 @@
 import numpy as np
 
-from ml.tensor import Tensor
-from ml.ops import Softmax
-from ml.nn import MSE, CrossEntropyFromLogits, BCEWithLogitsLoss
+from visualml.tensor import Tensor
+from visualml.ops import Softmax
+from visualml.nn import MSE, CrossEntropyFromLogits, BCEWithLogitsLoss
 
 rng = np.random.default_rng(1)
 

@@ -1,6 +1,6 @@
 import numpy as np
-from ml.tensor import Tensor
-from ml.ops import *
+from visualml.tensor import Tensor
+from visualml.ops import *
 
 np.random.seed(42)
 

@@ -8,7 +8,7 @@ this script writes.
     python scripts/train_mnist.py --model mlp --seed 0
     python scripts/train_mnist.py --report           # every model x 3 seeds -> results.json
 
-For each run it writes, into web/public/recognize/:
+For each run it writes, into demos/public/recognize/:
     <model>.npz            final weights, float32 (only for the seed the page ships: 0)
     <model>-history.npz    ~12 snapshots spaced logarithmically in steps, float16
     <model>-log.json       training loss and a held-out accuracy at log-spaced steps
@@ -25,15 +25,15 @@ import numpy as np
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "src"))
 
-from ml.data import load_mnist, iterate_minibatches                      # noqa: E402
-from ml.nn import (Sequential, Linear, ReLU, Conv2D, MaxPool2D, Flatten,   # noqa: E402
+from visualml.data import load_mnist, iterate_minibatches                      # noqa: E402
+from visualml.nn import (Sequential, Linear, ReLU, Conv2D, MaxPool2D, Flatten,   # noqa: E402
                    CrossEntropyFromLogits)
-from ml.optim import Adam, LinearDecay, flat_params                                  # noqa: E402
-from ml.tensor import Tensor                                            # noqa: E402
-from ml.training import Trainer                                         # noqa: E402
+from visualml.optim import Adam, LinearDecay, flat_params                                  # noqa: E402
+from visualml.tensor import Tensor                                            # noqa: E402
+from visualml.training import Trainer                                         # noqa: E402
 
 DATA = ROOT / "data" / "raw" / "mnist"
-OUT = ROOT / "web" / "public" / "recognize"
+OUT = ROOT / "demos" / "public" / "recognize"
 
 BATCH = 64
 LR = 1e-3

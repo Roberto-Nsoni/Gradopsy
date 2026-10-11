@@ -12,9 +12,9 @@ import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 from matplotlib.colors import LogNorm
 
-from ml.data import SURFACES
-from ml.optim import SGD, Momentum, RMSProp, Adam, BFGS, Newton
-from ml.training import SurfaceRunner, Recorder
+from visualml.data import SURFACES
+from visualml.optim import SGD, Momentum, RMSProp, Adam, BFGS, Newton
+from visualml.training import SurfaceRunner, Recorder
 
 # Each optimizer needs its own step size to be worth watching: comparing SGD at lr=0.05 with
 # BFGS at its own alpha is the honest comparison, not forcing everyone into the same number.
