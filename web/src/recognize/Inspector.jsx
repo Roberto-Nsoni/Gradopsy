@@ -180,7 +180,7 @@ function Softmax({ logits, probs, k }) {
   );
 }
 
-export default function Inspector({ display, explain, trace, focus, attack }) {
+export default function Inspector({ display, explain, trace, focus }) {
   if (!trace) return null;
 
   let body = null;
@@ -207,13 +207,6 @@ export default function Inspector({ display, explain, trace, focus, attack }) {
   return (
     <div className="rc-inspect">
       {body}
-      {attack && (
-        <p className="rc-attack">
-          {attack.reached
-            ? <>Fooled: it now reads <b>{attack.pred}</b>. {attack.steps} gradient steps on the image; no pixel moved more than <b>{(attack.linf * 100).toFixed(1)}%</b>, {attack.touched} of 784 touched.</>
-            : <>Not fooled in {attack.steps} steps; it reads {attack.pred}.</>}
-        </p>
-      )}
     </div>
   );
 }

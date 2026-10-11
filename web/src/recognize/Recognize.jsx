@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import {
-  recAt, recAttack, recEmbed, recEmbedAxes, recEmbedPart, recExplain, recHistory, recLoad, recSaliency, recTestset, recTrace,
+  recAt, recEmbed, recEmbedAxes, recEmbedPart, recExplain, recHistory, recLoad, recSaliency, recTestset, recTrace,
 } from "../engine";
 import { VARS, paintTube } from "../looks/scope";
 import Icon from "../playground/icons";
@@ -108,11 +108,10 @@ export default function Recognize() {
   const [logs, setLogs] = useState({});
   const [results, setResults] = useState(null);
   const [pixels, setPixels] = useState(null);
-  const [trace, setTrace] = useState(null);
+  const [traced, setTrace] = useState(null);
   const [hover, setHover] = useState(null);
   const [pinned, setPinned] = useState(null);
   const [grad, setGrad] = useState(null);
-  const [attack, setAttack] = useState(null);
   const [snaps, setSnaps] = useState({});
   const [at, setAt] = useState(-1);
   const [embed, setEmbed] = useState(null);
@@ -165,6 +164,7 @@ export default function Recognize() {
     if (!ready[model]) { setTrace(null); setGrad(null); return; }
     const px = drawn ?? new Float32Array(784);
     const t = recTrace(model, px);
+    t.model = model;
     // one view per module, as a typed array into the one buffer
     let offset = 0;
     t.slices = t.stages.map((st) => {
@@ -184,6 +184,10 @@ export default function Recognize() {
   useEffect(() => { read(pixels); }, [pixels]);                     // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => { read(pixels, true); }, [read, at]);              // eslint-disable-line react-hooks/exhaustive-deps
 
+
+  // a trace belongs to the network that made it: for the one render between switching networks and
+  // reading the digit again, the strip has the new network's stages and no values for them
+  const trace = traced?.model === model ? traced : null;
 
   const focus = hover ?? pinned;
   const display = focus ? displays[focus.d] : null;
@@ -209,23 +213,16 @@ export default function Recognize() {
     };
   }, [explain, focus, display, displays]);
 
-  // ---------- inputs, saliency, attack ----------
+  // ---------- inputs and saliency ----------
 
-  const onInput = useCallback((px) => { setAttack(null); setPixels(px); }, []);
+  const onInput = useCallback((px) => { setPixels(px); }, []);
 
   // pressing a digit in the softmax pins its logit, z of that digit
   const logitsAt = displays.findIndex((d) => d.kind === "logits");
   const choose = (digit) => setPinned((p) => (p && p.d === logitsAt && p.index === digit ? null : { d: logitsAt, index: digit }));
   const chosen = pinned && pinned.d === logitsAt ? pinned.index : null;
 
-  const fool = (target) => {
-    if (!pixels) return;
-    const out = recAttack(model, pixels, target);
-    setAttack({ ...out, target });
-    setPixels(out.pixels);
-  };
-
-  const clear = () => { pad.current?.clear(); setAttack(null); setPinned(null); };
+  const clear = () => { pad.current?.clear(); setPinned(null); };
 
   // ---------- time ----------
 
@@ -320,7 +317,6 @@ export default function Recognize() {
     return () => window.removeEventListener("resize", paint);
   }, []);
 
-  const winner = trace ? trace.probs.indexOf(Math.max(...trace.probs)) : null;
   const res = results?.[model];
 
   const padNode = (
@@ -333,18 +329,6 @@ export default function Recognize() {
       {!pixels && !status && <p className="rc-empty">draw a digit</p>}
       {status && <p className="pg-screen-notice" role="status">{status}</p>}
       {target && grad && <p className="rc-pad-label">saliency · <Sym n={target.unitName(pinned)} /></p>}
-    </div>
-  );
-
-  const foolNode = (
-    <div className="rc-fool" role="group" aria-label="Push the image until the network reads another digit">
-      <span className="pg-label">make it read</span>
-      <span className="rc-fool-digits">
-        {Array.from({ length: 10 }, (_, d) => (
-          <button type="button" key={d} className={"pg-tiny" + (attack?.target === d ? " is-on" : "")}
-                  disabled={!pixels || d === winner} onClick={() => fool(d)}>{d}</button>
-        ))}
-      </span>
     </div>
   );
 
@@ -374,7 +358,7 @@ export default function Recognize() {
       <section className="rc-pass" aria-label="The forward pass">
         <Strip trace={trace} displays={displays} pad={padNode} focus={focus} marks={marks}
                onPoint={setHover} onPin={(f) => setPinned((p) => (p && p.d === f.d && p.index === f.index ? null : f))}
-               probs={trace?.probs} logits={trace?.logits} chosen={chosen} onChoose={choose} fool={foolNode} />
+               probs={trace?.probs} logits={trace?.logits} chosen={chosen} onChoose={choose} />
         <div className="rc-run">
           <RunLog log={logs[model]} snaps={snaps[model]} at={at} onScrub={scrub} onLive={() => scrub(-1)} />
         </div>
@@ -382,7 +366,7 @@ export default function Recognize() {
 
       <section className="rc-below">
         <div className="rc-explain" aria-live="polite">
-          <Inspector display={display} explain={explain} trace={trace} focus={focus} attack={attack} />
+          <Inspector display={display} explain={explain} trace={trace} focus={focus} />
         </div>
         <aside className="rc-where" aria-label="Where it lands">
           <Space embed={embed} here={here} />

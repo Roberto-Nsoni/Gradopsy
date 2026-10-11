@@ -210,8 +210,6 @@ export const recHistory = (model, history) => unwrap(call("rec_history", model, 
 export const recAt = (model, idx) => call("rec_at", model, idx);
 export const recSaliency = (model, pixels, stage, index) =>
   unwrap(call("rec_saliency", model, Array.from(pixels), stage, index), { grad: "f32" });
-export const recAttack = (model, pixels, target) =>
-  unwrap(call("rec_attack", model, Array.from(pixels), target), { pixels: "f32" });
 export const recTestset = (imagesGz, labels) => unwrap(call("rec_testset", bytesIn(imagesGz), bytesIn(labels)));
 export const recEmbedPart = (model, start, count) => call("rec_embed_part", model, start, count);
 export const recEmbedAxes = (model, iters) => call("rec_embed_axes", model, iters);

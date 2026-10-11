@@ -95,9 +95,6 @@
 .rc-probs li.is-top .rc-bar i { background: var(--accent); }
 .rc-probs li.is-chosen b { outline: 1px solid var(--ink); outline-offset: 2px; }
 .rc-probs button:hover .rc-bar { background: rgba(148, 255, 201, 0.14); }
-.rc-fool { display: grid; gap: 5px; }
-.rc-fool-digits { display: grid; grid-template-columns: repeat(10, 1fr); gap: 2px; }
-.rc-fool-digits .pg-tiny { width: auto; font-family: "Martian Mono", ui-monospace, monospace; font-size: 0.6rem; }
 
 .rc-run { border-top: 1px solid var(--hairline); padding-top: 6px; }
 
@@ -159,8 +156,6 @@
 .rc-softmax th, .rc-softmax td { padding: 4px 8px; text-align: right; border-bottom: 1px solid var(--hairline); color: var(--label-ink); }
 .rc-softmax th { font-weight: 600; }
 .rc-softmax .is-k { color: var(--accent); }
-.rc-attack { margin: 0; padding-top: 10px; border-top: 1px solid var(--hairline); font-size: 0.8rem; line-height: 1.5; color: var(--label-ink); }
-.rc-attack b { color: var(--accent); font-family: "Martian Mono", ui-monospace, monospace; font-weight: 600; }
 
 /* space (kept from before) */
 .rc-space { display: grid; gap: 8px; }

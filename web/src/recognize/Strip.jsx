@@ -33,7 +33,7 @@ function paintMark(ctx, layout, w, h, mark, ink) {
 /** Grid columns for a stage of C maps, so tall stacks stay inside the strip's height. */
 const colsFor = (C) => (C <= 1 ? 1 : C <= 8 ? 2 : 4);
 
-export default function Strip({ trace, displays, pad, focus, marks, onPoint, onPin, probs, logits, chosen, onChoose, fool }) {
+export default function Strip({ trace, displays, pad, focus, marks, onPoint, onPin, probs, logits, chosen, onChoose }) {
   const box = useRef(null);
   const cv = useRef({});
   const [size, setSize] = useState({ w: 1200, h: 380 });
@@ -197,7 +197,6 @@ export default function Strip({ trace, displays, pad, focus, marks, onPoint, onP
                   );
                 })}
               </ol>
-              {fool}
             </div>
           )}
 

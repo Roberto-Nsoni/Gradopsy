@@ -1,0 +1,66 @@
+{
+  "mlp": {
+    "runs": [
+      {
+        "seed": 0,
+        "test_accuracy": 0.9849,
+        "test_accuracy_moved": 0.9738,
+        "parameters": 235146,
+        "seconds": 233.6
+      },
+      {
+        "seed": 1,
+        "test_accuracy": 0.9839,
+        "test_accuracy_moved": 0.974,
+        "parameters": 235146,
+        "seconds": 270.1
+      },
+      {
+        "seed": 2,
+        "test_accuracy": 0.9856,
+        "test_accuracy_moved": 0.9737,
+        "parameters": 235146,
+        "seconds": 197.5
+      }
+    ],
+    "mean": 0.9848,
+    "std": 0.0009,
+    "mean_moved": 0.9738,
+    "std_moved": 0.0002,
+    "parameters": 235146,
+    "epochs": 15,
+    "shipped_seed": 0
+  },
+  "cnn": {
+    "runs": [
+      {
+        "seed": 0,
+        "test_accuracy": 0.9885,
+        "test_accuracy_moved": 0.9772,
+        "parameters": 11274,
+        "seconds": 1165.2
+      },
+      {
+        "seed": 1,
+        "test_accuracy": 0.9858,
+        "test_accuracy_moved": 0.9736,
+        "parameters": 11274,
+        "seconds": 1018.3
+      },
+      {
+        "seed": 2,
+        "test_accuracy": 0.9853,
+        "test_accuracy_moved": 0.974,
+        "parameters": 11274,
+        "seconds": 994.2
+      }
+    ],
+    "mean": 0.9865,
+    "std": 0.0017,
+    "mean_moved": 0.9749,
+    "std_moved": 0.002,
+    "parameters": 11274,
+    "epochs": 10,
+    "shipped_seed": 0
+  }
+}
