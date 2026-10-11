@@ -1,10 +1,10 @@
 # visualML
 
-A machine-learning engine written from scratch on top of NumPy — tensors with reverse-mode
-automatic differentiation, layers, losses, first- and second-order optimizers — and a website
+A machine-learning engine written from scratch on top of NumPy (tensors with reverse-mode
+automatic differentiation, layers, losses, first- and second-order optimizers) and a website
 that runs that same engine in the browser, through Pyodide, to show it working.
 
-<!-- Live site: add the link here once it is deployed. -->
+**Live:** [visualml.rupar.workers.dev](https://visualml.rupar.workers.dev)
 
 Nothing of the mathematics is reimplemented in JavaScript: the page loads the Python package and
 asks it for every number it draws.
@@ -29,13 +29,30 @@ Every operation is checked against a numerical gradient before it is used: 130 t
 
 Vite + React, with the engine loaded into the page by Pyodide.
 
-- **playground** — draw a 2D dataset, build a network layer by layer, and watch it train live.
+- **playground:** draw a 2D dataset, build a network layer by layer, and watch it train live.
   Every neuron is drawn as its own field over the plane, and the training history can be rewound.
-- **recognize** — draw a digit and read it with two networks trained on MNIST by the engine. The
+- **recognize:** draw a digit and read it with two networks trained on MNIST by the engine. The
   whole forward pass is laid out stage by stage, and pointing at any value shows how it was
   computed, with the network's own numbers.
 
 ## Results
+
+### Linear regression against the closed form
+
+Every optimizer of the engine has to land on the weights of the normal equations,
+$w^* = (X^\top X)^{-1} X^\top y$. Steps until $\lVert w - w^* \rVert < 10^{-6}$, on 200 points with
+3 features, well conditioned and with the features on scales 1, 10 and 100 (condition number
+about 9300):
+
+| optimizer | well conditioned | scales 1, 10, 100 |
+|---|---:|---:|
+| SGD | 9 | not in 500 |
+| Momentum | 270 | not in 500 |
+| Adam | 286 | 379 |
+| BFGS | 7 | 8 |
+| Newton | 2 | 2 |
+
+### MNIST
 
 MNIST test accuracy, mean ± standard deviation over three seeds, measured on the float32 weights
 the website loads (`demos/public/recognize/results.json`):
@@ -74,11 +91,11 @@ jupyter nbconvert --to notebook --execute --inplace experiments.ipynb
 The website (needs Node and [uv](https://docs.astral.sh/uv/), which builds the engine's wheel):
 
 ```bash
-cd web
+cd demos
 npm install
 npm run dev
 ```
 
 ## License
 
-MIT — see [LICENSE](LICENSE).
+MIT, see [LICENSE](LICENSE).
