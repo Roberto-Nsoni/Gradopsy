@@ -27,7 +27,6 @@ export const RUNNERS = [
   { key: "rmsprop", name: "RMSProp", ink: INK.fieldB, dash: [], width: 2.2, mark: "diamond", order: 1, lr: 0.02 },
   { key: "adam", name: "Adam", ink: INK.fieldB, dash: [9, 5], width: 2.2, mark: "triangle", order: 1, lr: 0.05 },
   { key: "bfgs", name: "BFGS", ink: INK.ink, dash: [], width: 3, mark: "cross", order: 2 },
-  { key: "lbfgs", name: "L-BFGS", ink: INK.ink, dash: [9, 5], width: 3, mark: "bar", order: 2 },
   // Not the strike. The strike is this world's one accent and it means "the step you are looking
   // at"; a runner wearing it made a seventh of the drawing claim to be the present moment.
   { key: "newton", name: "Newton", ink: INK.ink, dash: [2.5, 4], width: 3, mark: "ring", order: 2 },

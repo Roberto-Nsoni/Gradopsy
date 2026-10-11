@@ -1,7 +1,7 @@
 import numpy as np
 
 from ml.tensor import Tensor
-from ml.optim import SGD, Momentum, RMSProp, Adam, BFGS, LBFGS, Newton, LinearDecay
+from ml.optim import SGD, Momentum, RMSProp, Adam, BFGS, Newton, LinearDecay
 from ml.optim import flat_params, set_flat_params, flat_grad, hessian_fd
 
 # Toy convex problem: f(x) = 1/2 x'Ax - b'x, minimum at A^-1 b.
@@ -58,9 +58,6 @@ def test_adam():
 def test_bfgs_converges_much_faster_than_sgd():
     """8 BFGS iterations against 300 of SGD, and it still wins by orders of magnitude."""
     assert np.allclose(run(BFGS, 8), x_star, atol=1e-8)
-
-def test_lbfgs_converges_much_faster_than_sgd():
-    assert np.allclose(run(LBFGS, 8), x_star, atol=1e-6)
 
 def test_bfgs_learns_the_inverse_hessian():
     """On a quadratic H has to end up being A^-1: that is the whole idea."""
@@ -151,7 +148,7 @@ def test_state_of_each_optimizer():
     """SGD carries nothing and that is the point; the rest each expose their own machinery."""
     esperado = {SGD: set(), Momentum: {"velocity"}, RMSProp: {"scale"},
                 Adam: {"velocity", "scale"}, BFGS: {"H", "alpha", "descent"},
-                LBFGS: {"n_pairs", "alpha", "descent"}, Newton: {"lam", "alpha", "H"}}
+                Newton: {"lam", "alpha", "H"}}
 
     for cls, claves in esperado.items():
         x, f = make_problem()

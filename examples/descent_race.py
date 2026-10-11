@@ -13,7 +13,7 @@ from matplotlib.animation import FuncAnimation
 from matplotlib.colors import LogNorm
 
 from ml.data import SURFACES
-from ml.optim import SGD, Momentum, RMSProp, Adam, BFGS, LBFGS, Newton
+from ml.optim import SGD, Momentum, RMSProp, Adam, BFGS, Newton
 from ml.training import SurfaceRunner, Recorder
 
 # Each optimizer needs its own step size to be worth watching: comparing SGD at lr=0.05 with
@@ -24,7 +24,6 @@ CORREDORES = [
     ("RMSProp",  RMSProp,  {"lr": 0.02},  "#edc948"),
     ("Adam",     Adam,     {"lr": 0.05},  "#59a14f"),
     ("BFGS",     BFGS,     {},            "#4e79a7"),
-    ("L-BFGS",   LBFGS,    {},            "#b07aa1"),
     ("Newton",   Newton,   {},            "#76b7b2"),
 ]
 

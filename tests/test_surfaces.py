@@ -2,7 +2,7 @@ import numpy as np
 
 from ml.tensor import Tensor
 from ml.data import SURFACES
-from ml.optim import SGD, Momentum, RMSProp, Adam, BFGS, LBFGS, Newton
+from ml.optim import SGD, Momentum, RMSProp, Adam, BFGS, Newton
 from ml.training import SurfaceRunner, Recorder
 
 
@@ -76,7 +76,7 @@ def test_newton_gets_stuck_on_the_saddle_while_everyone_else_escapes():
     # it hovers around the minimum at a distance of the order of lr.
     for cls, kwargs, steps, atol in [(SGD, {"lr": 0.01}, 500, 1e-3), (Momentum, {"lr": 0.01}, 500, 1e-3),
                                      (RMSProp, {"lr": 0.01}, 500, 1e-2), (Adam, {"lr": 0.05}, 500, 1e-3),
-                                     (BFGS, {}, 40, 1e-3), (LBFGS, {}, 40, 1e-3)]:
+                                     (BFGS, {}, 40, 1e-3)]:
         runner = run("double_well", cls, steps, **kwargs)
         x, y = runner.position
 

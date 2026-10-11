@@ -12,12 +12,12 @@ from ml.tensor import Tensor
 from ml.metrics import accuracy
 from ml.nn import MLP, ReLU, Tanh, Sigmoid, MSE, CrossEntropyFromLogits
 from ml.data import SURFACES, make_spirals, make_moons, make_circles, make_blobs
-from ml.optim import SGD, Momentum, RMSProp, Adam, BFGS, LBFGS, Newton, flat_params
+from ml.optim import SGD, Momentum, RMSProp, Adam, BFGS, Newton, flat_params
 from ml.training import Trainer, Recorder, SurfaceRunner
 from ml.viz import make_grid, predict_grid, trajectory_directions, loss_surface, project_trajectory
 
 OPTIMIZERS = {"sgd": SGD, "momentum": Momentum, "rmsprop": RMSProp, "adam": Adam,
-              "bfgs": BFGS, "lbfgs": LBFGS, "newton": Newton}
+              "bfgs": BFGS, "newton": Newton}
 ACTIVATIONS = {"relu": ReLU, "tanh": Tanh, "sigmoid": Sigmoid}
 FIRST_ORDER = {"sgd", "momentum", "rmsprop", "adam"}
 
@@ -610,7 +610,7 @@ from ml.nn import Sequential, Linear
 
 PG = {}
 PG_ACTIVATIONS = {"relu": ReLU, "tanh": Tanh, "sigmoid": Sigmoid, "linear": None}
-PG_SECOND_ORDER = {"bfgs", "lbfgs"}
+PG_SECOND_ORDER = {"bfgs"}
 PG_HISTORY = 2000         # snapshots kept, one per epoch until then; past it the history is thinned and the cadence doubles
 
 
@@ -1021,8 +1021,8 @@ def pg_close(key):
 #
 # Training sixty thousand digits is minutes of work and does not belong in a tab, so the networks
 # arrive trained — by the same engine, with the script in the repository. Everything the page
-# shows from then on is computed here, on those weights: every prediction, every gradient with
-# respect to a pixel, the attack, and the full test set when the visitor asks to check the number.
+# shows from then on is computed here, on those weights: every prediction, every value of every
+# stage, and every gradient with respect to a pixel.
 
 import gzip
 import io
@@ -1106,33 +1106,6 @@ def rec_saliency(model, pixels, stage, index):
     pick.reshape(-1)[int(index)] = 1.0
     (a * Tensor(pick)).sum().backward()
     return {"grad": x.grad.reshape(-1).astype(np.float32).tobytes()}
-
-
-def rec_attack(model, pixels, target, step=0.01, max_steps=300, touched_at=0.005):
-    """
-    Push the image towards class `target` by gradient descent on the input itself: each step
-    lowers the cross-entropy of `target` by moving every pixel a little in the direction of its
-    gradient's sign, clipped to 0..1. Stops as soon as the network says `target`.
-    """
-    x0 = np.asarray(pixels, dtype=float).reshape(_rec_shape(model))
-    x = x0.copy()
-    loss_f = CrossEntropyFromLogits()
-    y = Tensor(np.array([int(target)]))
-    net = REC[model]["net"]
-    pred, steps = None, 0
-    for steps in range(max_steps + 1):
-        xt = Tensor(x, requires_grad=True)
-        logits = net(xt)
-        pred = int(logits.data.argmax())
-        if pred == int(target) or steps == max_steps:
-            break
-        loss_f(logits, y).backward()
-        x = np.clip(x - step * np.sign(xt.grad), 0.0, 1.0)
-    # how far it had to go: the largest change to any one pixel (on 0..1), and how many it touched
-    delta = np.abs(x - x0).reshape(-1)
-    return {"pixels": x.reshape(-1).astype(np.float32).tobytes(), "pred": pred, "steps": steps,
-            "reached": pred == int(target), "touched": int((delta > touched_at).sum()),
-            "linf": round(float(delta.max()), 4)}
 
 
 def rec_testset(images_gz, labels):

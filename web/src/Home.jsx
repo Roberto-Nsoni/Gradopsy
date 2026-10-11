@@ -262,7 +262,7 @@ function Evidence() {
   const facts = [
     ["121", "tests, green", "every operation checked against a numerical gradient"],
     ["1,367", "lines of engine", "autograd, losses, optimizers; no framework underneath"],
-    ["7", "optimizers", "BFGS, L-BFGS and a damped Newton with a finite-difference Hessian among them"],
+    ["6", "optimizers", "BFGS and a damped Newton with a finite-difference Hessian among them"],
     ["0", "servers", "the mathematics runs in this tab, through Pyodide"],
   ];
 

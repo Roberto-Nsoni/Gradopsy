@@ -157,7 +157,7 @@ function NumberField({ value, onCommit, label, placeholder, disabled, min, max, 
 
 const OPT_NAMES = {
   sgd: "SGD", momentum: "Momentum", rmsprop: "RMSProp", adam: "Adam",
-  lbfgs: "L-BFGS · second order", bfgs: "BFGS · second order",
+  bfgs: "BFGS · second order",
 };
 
 const LOG_MIN = Math.log10(LR_MIN), LOG_MAX = Math.log10(LR_MAX);
