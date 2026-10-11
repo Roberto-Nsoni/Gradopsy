@@ -1015,3 +1015,336 @@ def pg_rewind(key, idx):
 def pg_close(key):
     PG.pop(key, None)
     return True
+
+
+# ---------- recognize: MNIST, with weights trained offline by scripts/train_mnist.py ----------
+#
+# Training sixty thousand digits is minutes of work and does not belong in a tab, so the networks
+# arrive trained — by the same engine, with the script in the repository. Everything the page
+# shows from then on is computed here, on those weights: every prediction, every gradient with
+# respect to a pixel, the attack, and the full test set when the visitor asks to check the number.
+
+import gzip
+import io
+
+from ml.nn import Conv2D as _Conv2D, MaxPool2D as _MaxPool2D, Flatten as _Flatten
+
+REC = {}
+REC_TEST = {}
+
+
+def _rec_build(model):
+    """The two architectures, exactly as scripts/train_mnist.py builds them."""
+    if model == "mlp":
+        return Sequential(Linear(784, 256), ReLU(), Linear(256, 128), ReLU(), Linear(128, 10))
+    return Sequential(_Conv2D(1, 8, 5, padding=2), ReLU(), _MaxPool2D(2),
+                      _Conv2D(8, 16, 5, padding=2), ReLU(), _MaxPool2D(2),
+                      _Flatten(), Linear(16 * 7 * 7, 10))
+
+
+def _rec_shape(model):
+    return (-1, 784) if model == "mlp" else (-1, 1, 28, 28)
+
+
+def rec_load(model, weights_bytes):
+    """Build the network and load its shipped weights (an .npz of float32 arrays by name)."""
+    np.random.seed(0)
+    net = _rec_build(model)
+    saved = np.load(io.BytesIO(bytes(weights_bytes)))
+    for name, p in net.parameters():
+        p.data = saved[name].astype(np.float64)
+    params = [p for _, p in net.parameters()]
+    # trained, so only ever used for predictions: no graph through the weights. The list above is
+    # taken first, because a frozen model's parameters() skips its (now non-trainable) tensors
+    net.freeze()
+    REC[model] = {"net": net, "params": params, "final": flat_params(params), "history": None, "at": -1}
+    return {"parameters": int(sum(p.size for p in params))}
+
+
+def rec_history(model, history_bytes):
+    """The training snapshots, for the timeline: float16 parameter vectors at the given steps."""
+    saved = np.load(io.BytesIO(bytes(history_bytes)))
+    REC[model]["history"] = {"steps": saved["steps"].astype(int), "params": saved["params"]}
+    return {"steps": saved["steps"].astype(int).tolist()}
+
+
+def rec_at(model, idx):
+    """Put the network at snapshot `idx` of its history, or back to the shipped weights for -1."""
+    s = REC[model]
+    if idx == s["at"]:
+        return True
+    vec = s["final"] if idx < 0 else s["history"]["params"][idx].astype(np.float64)
+    set_flat_params(s["params"], vec)
+    s["at"] = idx
+    return True
+
+
+def _rec_layers(model, x):
+    """Every layer's output for one input batch: the activations the page draws."""
+    out = []
+    a = x
+    for m in REC[model]["net"]._modules.values():
+        a = m(a)
+        out.append(a)
+    return out
+
+
+def rec_saliency(model, pixels, stage, index):
+    """
+    How much each pixel pushes one value of the network up or down: the gradient, with respect to
+    the input, of the value at flat `index` of module `stage`'s output, by the engine's own
+    backward pass. The value is picked out by multiplying with a one-hot mask and summing, so no
+    indexing op is needed. For the last module and a digit it is that digit's logit.
+    """
+    x = Tensor(np.asarray(pixels, dtype=float).reshape(_rec_shape(model)), requires_grad=True)
+    a = x
+    for s, m in enumerate(REC[model]["net"]._modules.values()):
+        a = m(a)
+        if s == stage:
+            break
+    pick = np.zeros(a.shape)
+    pick.reshape(-1)[int(index)] = 1.0
+    (a * Tensor(pick)).sum().backward()
+    return {"grad": x.grad.reshape(-1).astype(np.float32).tobytes()}
+
+
+def rec_attack(model, pixels, target, step=0.01, max_steps=300, touched_at=0.005):
+    """
+    Push the image towards class `target` by gradient descent on the input itself: each step
+    lowers the cross-entropy of `target` by moving every pixel a little in the direction of its
+    gradient's sign, clipped to 0..1. Stops as soon as the network says `target`.
+    """
+    x0 = np.asarray(pixels, dtype=float).reshape(_rec_shape(model))
+    x = x0.copy()
+    loss_f = CrossEntropyFromLogits()
+    y = Tensor(np.array([int(target)]))
+    net = REC[model]["net"]
+    pred, steps = None, 0
+    for steps in range(max_steps + 1):
+        xt = Tensor(x, requires_grad=True)
+        logits = net(xt)
+        pred = int(logits.data.argmax())
+        if pred == int(target) or steps == max_steps:
+            break
+        loss_f(logits, y).backward()
+        x = np.clip(x - step * np.sign(xt.grad), 0.0, 1.0)
+    # how far it had to go: the largest change to any one pixel (on 0..1), and how many it touched
+    delta = np.abs(x - x0).reshape(-1)
+    return {"pixels": x.reshape(-1).astype(np.float32).tobytes(), "pred": pred, "steps": steps,
+            "reached": pred == int(target), "touched": int((delta > touched_at).sum()),
+            "linf": round(float(delta.max()), 4)}
+
+
+def rec_testset(images_gz, labels):
+    """The 10 000 MNIST test digits, as the page fetched them: gzipped uint8 and uint8 labels."""
+    X = np.frombuffer(gzip.decompress(bytes(images_gz)), dtype=np.uint8).reshape(-1, 28, 28)
+    y = np.frombuffer(bytes(labels), dtype=np.uint8).astype(int)
+    REC_TEST.update(X=X, y=y)
+    return {"n": int(len(y))}
+
+
+def rec_embed_part(model, start, count):
+    """
+    Run test digits start..start+count through the network and keep their last hidden layer.
+    The page asks for the picture a few digits at a time, between frames, because two thousand
+    digits through the CNN in one go holds the tab for several seconds.
+    """
+    if start == 0:
+        REC[model]["embed_h"] = []
+        REC[model]["embed_A"] = None
+    batch = REC_TEST["X"][start:start + count].astype(np.float64).reshape(_rec_shape(model)) / 255.0
+    last = 3 if model == "mlp" else 6
+    REC[model]["embed_h"].append(_rec_layers(model, Tensor(batch))[last].data)
+    return True
+
+
+def rec_embed_axes(model, iters):
+    """
+    `iters` more steps towards the two directions of largest variance of the digits run so far.
+
+    Only those two are needed, so instead of a full SVD (which takes over ten seconds in the
+    browser's NumPy) this is subspace iteration: multiply two vectors by the covariance hc.T @ hc
+    and orthonormalise them, again and again, until they settle on its top two eigenvectors. Like
+    the digits, the steps are taken a few at a time between frames.
+    """
+    s = REC[model]
+    if s.get("embed_A") is None:
+        h = np.concatenate(s["embed_h"])
+        s["embed_mean"] = h.mean(axis=0)
+        s["embed_hc"] = h - s["embed_mean"]
+        s["embed_A"] = np.random.RandomState(0).randn(h.shape[1], 2)
+    hc, A = s["embed_hc"], s["embed_A"]
+    for _ in range(iters):
+        A, _ = np.linalg.qr(hc.T @ (hc @ A))
+    s["embed_A"] = A
+    return True
+
+
+def rec_embed(model):
+    """
+    The test digits run so far, in the network's last hidden layer, through its PCA: where the
+    network puts each kind of digit. Also the projection itself, so a drawn digit can be placed.
+    """
+    s = REC[model]
+    hc, A, mean = s["embed_hc"], s["embed_A"], s["embed_mean"]
+    y = REC_TEST["y"][:len(hc)]
+    # the iteration found the right plane; a 2x2 eigenproblem turns the two vectors to the exact
+    # axes inside it
+    lam, R = np.linalg.eigh((hc @ A).T @ (hc @ A))
+    axes = (A @ R[:, ::-1]).T
+    memory = REC[model].setdefault("embed_axes", None)
+    if memory is not None:
+        for k in range(2):
+            if axes[k] @ memory[k] < 0:
+                axes[k] = -axes[k]
+    REC[model]["embed_axes"] = axes.copy()
+    xy = hc @ axes.T
+    span = float(np.abs(xy).max()) or 1.0
+    return {"xy": (xy / span).astype(np.float32).tobytes(), "labels": y.tolist(),
+            "mean": mean.round(5).tolist(), "axes": axes.round(6).tolist(), "span": span,
+            "share": round(float(lam.sum() / max((hc ** 2).sum(), 1e-12)), 3)}
+
+
+# ---------- recognize: the forward pass, read ----------
+#
+# `rec_trace` runs one digit through the network and keeps every stage's output, so the page can
+# draw them all. `rec_explain` then answers "how was this one number computed?" with the numbers
+# themselves: for a convolution, the patch it looked at, the kernel, their products and the sum;
+# for a linear unit, every input times its weight; for a max-pool, the block it chose from. It also
+# says which pixels of the input that number can see at all (its receptive field).
+
+def _rec_stages(model):
+    """What each module does, in order: the page labels and draws the stages from this."""
+    out = []
+    for m in REC[model]["net"]._modules.values():
+        if isinstance(m, _Conv2D):
+            out.append({"kind": "conv", "k": int(m.W.shape[2]), "padding": int(m.padding)})
+        elif isinstance(m, _MaxPool2D):
+            out.append({"kind": "pool", "k": int(m.k)})
+        elif isinstance(m, _Flatten):
+            out.append({"kind": "flatten"})
+        elif isinstance(m, Linear):
+            out.append({"kind": "linear"})
+        else:
+            out.append({"kind": type(m).__name__.lower()})
+    return out
+
+
+def rec_trace(model, pixels):
+    """Every stage of one digit's forward pass. `data` holds them one after another as float32."""
+    x = np.asarray(pixels, dtype=float).reshape(_rec_shape(model))
+    acts = [a.data[0] for a in _rec_layers(model, Tensor(x))]
+    REC[model]["trace"] = {"input": x[0], "acts": acts}
+    logits = acts[-1]
+    probs = np.exp(logits - logits.max()); probs /= probs.sum()
+    stages = _rec_stages(model)
+    for st, a in zip(stages, acts):
+        st["shape"] = list(a.shape)
+    return {"stages": stages, "data": np.concatenate([a.reshape(-1) for a in acts]).astype(np.float32).tobytes(),
+            "logits": logits.round(5).tolist(), "probs": probs.round(6).tolist(),
+            "last": acts[-2].reshape(-1).round(5).tolist()}
+
+
+def _rec_fields(model, stage, index):
+    """
+    Which values of every earlier stage the number at flat `index` of `stage`'s output depends on,
+    walking back one module at a time: a k x k convolution with padding p sees a box k - 1 wider in
+    every input map, a k x k pool sees its block in the same map, a ReLU sees the same value, a
+    flatten turns a position back into (map, row, column), and a linear unit sees everything.
+
+    Returns (fields, field): fields[s] is the region of module s's output, for every s < stage, as
+    {"cs": maps or "all", "box": [r0, r1, c0, c1]} (rows and columns, inclusive) or "all"; field is
+    the box of input pixels on the 28x28 digit.
+    """
+    stages = _rec_stages(model)
+    acts = REC[model]["trace"]["acts"]
+    shape = acts[stage].shape
+    if len(shape) == 3:
+        C, H, W = shape
+        i, j = (index // W) % H, index % W
+        reg = {"cs": [int(index // (H * W))], "box": [int(i), int(i), int(j), int(j)]}
+    else:
+        reg = {"n": int(index)}
+
+    fields = [None] * stage
+    for s in range(stage, -1, -1):
+        kind = stages[s]["kind"]
+        if reg == "all" or kind == "linear":
+            reg = "all"
+        elif kind == "conv":
+            k, p = stages[s]["k"], stages[s]["padding"]
+            r0, r1, c0, c1 = reg["box"]
+            reg = {"cs": "all", "box": [r0 - p, r1 - p + k - 1, c0 - p, c1 - p + k - 1]}
+        elif kind == "pool":
+            k = stages[s]["k"]
+            r0, r1, c0, c1 = reg["box"]
+            reg = {"cs": reg["cs"], "box": [r0 * k, r1 * k + k - 1, c0 * k, c1 * k + k - 1]}
+        elif kind == "flatten":
+            C, H, W = acts[s - 1].shape
+            n = reg["n"]
+            reg = {"cs": [n // (H * W)], "box": [(n // W) % H, (n // W) % H, n % W, n % W]}
+        # a relu changes nothing about where a value comes from
+        if s > 0:
+            fields[s - 1] = _rec_clip(reg, acts[s - 1].shape)
+
+    if reg == "all" or "box" not in reg:
+        field = [0, 27, 0, 27]
+    else:
+        field = _rec_clip(reg, (1, 28, 28))["box"]
+    return fields, field
+
+
+def _rec_clip(reg, shape):
+    """A region cut to the tensor it lives in (padding reaches past the edges)."""
+    if reg == "all" or "box" not in reg:
+        return reg
+    H, W = shape[1], shape[2]
+    r0, r1, c0, c1 = reg["box"]
+    return {"cs": reg["cs"], "box": [max(0, r0), min(H - 1, r1), max(0, c0), min(W - 1, c1)]}
+
+
+def rec_explain(model, stage, index):
+    """How the number at flat `index` of `stage`'s output (for the last traced digit) came about."""
+    tr = REC[model]["trace"]
+    mods = list(REC[model]["net"]._modules.values())
+    m = mods[stage]
+    out = tr["acts"][stage]
+    prev = tr["input"] if stage == 0 else tr["acts"][stage - 1]
+    value = float(out.reshape(-1)[index])
+    fields, field = _rec_fields(model, stage, index)
+    res = {"value": round(value, 5), "fields": fields, "field": field}
+
+    if isinstance(m, _Conv2D):
+        O, H, W = out.shape
+        o, i, j = index // (H * W), (index // W) % H, index % W
+        k, p = m.W.shape[2], m.padding
+        src = prev if prev.ndim == 3 else prev.reshape(1, 28, 28)
+        padded = np.pad(src, ((0, 0), (p, p), (p, p)))
+        patch = padded[:, i:i + k, j:j + k]
+        kernel = m.W.data[o]
+        products = patch * kernel
+        res.update(kind="conv", o=int(o), i=int(i), j=int(j), k=int(k), channels=int(src.shape[0]),
+                   patch=patch.astype(np.float32).tobytes(), kernel=kernel.astype(np.float32).tobytes(),
+                   products=products.astype(np.float32).tobytes(),
+                   sum=round(float(products.sum()), 5), bias=round(float(m.b.data[o]), 5))
+    elif isinstance(m, _MaxPool2D):
+        C, H, W = out.shape
+        c, i, j = index // (H * W), (index // W) % H, index % W
+        k = m.k
+        block = prev[c, i * k:(i + 1) * k, j * k:(j + 1) * k]
+        res.update(kind="pool", c=int(c), i=int(i), j=int(j), k=int(k),
+                   block=block.reshape(-1).round(5).tolist())
+    elif isinstance(m, Linear):
+        a = prev.reshape(-1)
+        w = m.W.data[:, index]
+        products = a * w
+        order = np.argsort(-np.abs(products))[:8]
+        res.update(kind="linear", unit=int(index), n_in=int(len(a)),
+                   products=products.astype(np.float32).tobytes(), weights=w.astype(np.float32).tobytes(),
+                   inputs=a.astype(np.float32).tobytes(),
+                   top=[[int(t), round(float(a[t]), 4), round(float(w[t]), 4)] for t in order],
+                   sum=round(float(products.sum()), 5), bias=round(float(m.b.data[index]), 5))
+    else:
+        # relu or flatten: the same number as before, or zero
+        res.update(kind=type(m).__name__.lower(), before=round(float(prev.reshape(-1)[index]), 5))
+    return res

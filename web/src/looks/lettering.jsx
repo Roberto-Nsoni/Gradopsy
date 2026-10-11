@@ -21,6 +21,7 @@ const REPO = "https://github.com/Roberto-Nsoni/visualML";
    summary written for the cover. The cover has no business paraphrasing them. */
 const PLATES = [
   ["/playground", "playground", "Build a network and watch every neuron draw its own cut"],
+  ["/recognize", "recognize", "Draw a digit and watch two trained networks read it"],
 ];
 
 const Nav = () => (

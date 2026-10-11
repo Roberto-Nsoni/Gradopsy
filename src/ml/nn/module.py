@@ -54,6 +54,16 @@ class Module:
     def forward(self, *args: Any, **kwds: Any) -> Tensor:
         raise NotImplementedError
 
+    def freeze(self) -> None:
+        """
+        Stop tracking gradients for every parameter. Useful once a model is trained and only
+        used for predictions: otherwise every forward builds the whole graph (keeping all the
+        intermediate arrays alive) for a backward that never comes. Gradients w.r.t. an input
+        with requires_grad=True still work, which is all saliency maps need.
+        """
+        for _, p in self.parameters():
+            p.requires_grad = False
+
     def save(self, path: str) -> None:
         """Writes {parameter name: array} to an .npz, so a trained model survives the session."""
         np.savez(path, **{name: p.data for name, p in self.parameters(include_non_trainable=True)})
@@ -103,6 +113,40 @@ class Sequential(Module):
         for module in self._modules.values():
             x = module(x)
         return x
+
+class Conv2D(Module):
+    """
+    A bank of `out_channels` filters of k x k over `in_channels`, stride 1, zero padding.
+    He-initialised over the fan-in of one filter, like Linear.
+    """
+
+    def __init__(self, in_channels: int, out_channels: int, k: int, padding: int = 0, bias: bool = True) -> None:
+        super().__init__()
+        fan_in = in_channels * k * k
+        W = np.random.normal(0, np.sqrt(2 / fan_in), (out_channels, in_channels, k, k))
+        self.W = Tensor(W, requires_grad=True)
+        self.b = Tensor(np.zeros(out_channels), requires_grad=True) if bias else None
+        self.padding = padding
+
+    def forward(self, x: Tensor) -> Tensor:
+        return x.conv2d(self.W, self.b, self.padding)
+
+
+class MaxPool2D(Module):
+    def __init__(self, k: int = 2) -> None:
+        super().__init__()
+        self.k = k
+
+    def forward(self, x: Tensor) -> Tensor:
+        return x.maxpool2d(self.k)
+
+
+class Flatten(Module):
+    """(N, C, H, W) -> (N, C*H*W), so a Linear can follow a convolution."""
+
+    def forward(self, x: Tensor) -> Tensor:
+        return x.reshape(x.shape[0], -1)
+
 
 class MLP(Sequential):
     """

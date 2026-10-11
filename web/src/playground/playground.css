@@ -45,6 +45,18 @@
 .pg-say { margin: 0; font-size: 0.9rem; color: var(--label-ink); flex: 1; min-width: 0; }
 .pg-source a { padding: 8px 14px; }
 
+.pg-visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+/* the demos, side by side in the masthead */
+.pg-nav { display: flex; gap: 16px; flex: 1; }
+.pg-nav a {
+  font-size: 0.72rem; font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--ink); text-decoration: none; padding-bottom: 3px; border-bottom: 1px solid transparent;
+}
+.pg-nav a:hover { border-bottom-color: var(--edge); }
+.pg-nav a[aria-current="page"] { color: var(--accent); border-bottom-color: var(--accent); }
+
+
 /* ---- the bench ---- */
 
 .pg-main {
@@ -357,6 +369,7 @@
   .pg-main { display: contents; }
   .pg-head { order: 0; flex-wrap: wrap; row-gap: 6px; }
   .pg-say { flex-basis: 100%; order: 3; }
+  .pg-nav { order: 4; flex-basis: 100%; }
   .pg-source { margin-left: auto; }
   .pg-stage { order: 1; container-type: normal; display: block; width: calc(100% - 2 * var(--gutter)); max-width: 640px; margin: 0 auto; }
   .pg-stage > .pg-screen { width: 100%; height: auto; aspect-ratio: 1; }

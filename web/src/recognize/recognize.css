@@ -1,0 +1,189 @@
+/*
+ * recognize: the forward pass, read. Same world as the rest of the site — the tube, the phosphor,
+ * hairlines, no radius, no shadow — in a different composition from the playground's bench: one
+ * strip across the page that is the network, and below it the arithmetic of whatever is pointed at.
+ */
+
+.rc {
+  position: relative; isolation: isolate;
+  min-height: 100dvh;
+  display: grid; grid-template-rows: auto auto minmax(0, 1fr); gap: 14px;
+  padding-bottom: 14px;
+  background: var(--ground); color: var(--ink);
+  font-family: "Archivo", "Helvetica Neue", Arial, sans-serif;
+  --panel: rgba(6, 13, 9, 0.86);
+  --gutter: clamp(16px, 2.2vw, 32px);
+  --label-ink: #a9c9bb;
+}
+:where(.rc) button { font-family: inherit; color: inherit; line-height: 1.2; }
+
+.rc-head { flex-wrap: wrap; }
+.rc-models { display: flex; gap: 5px; margin-left: auto; }
+.rc-models .pg-chip { gap: 8px; }
+.rc-models .pg-measure { color: inherit; font-size: 0.66rem; }
+
+/* ---- the strip ---- */
+
+.rc-pass {
+  margin: 0 var(--gutter);
+  background: var(--panel); border: 1px solid var(--hairline);
+  padding: 14px 18px 10px;
+  display: grid; grid-template-rows: minmax(0, 1fr) auto; gap: 8px;
+  height: clamp(380px, 52vh, 520px);
+}
+.rc-strip {
+  display: flex; align-items: stretch; justify-content: space-between; gap: 22px;
+  min-height: 0; overflow-x: auto; scrollbar-width: thin;
+}
+/* every stage runs the full height: its name on one line along the top, its shape on one line
+   along the foot, and what it holds centred between them */
+.rc-stage {
+  position: relative; margin: 0; flex: none;
+  display: grid; grid-template-rows: 34px minmax(0, 1fr) 18px; justify-items: start;
+}
+.rc-stage > :nth-child(2) { align-self: center; }
+/* the wire from one stage to the next, through the middle of what they hold */
+.rc-stage + .rc-stage::before {
+  content: ""; position: absolute; left: -18px; top: calc(34px + (100% - 52px) / 2); width: 14px; height: 1px;
+  background: var(--edge);
+}
+.rc-stage-op {
+  align-self: end; padding-bottom: 6px;
+  font-size: 0.64rem; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: var(--ink);
+  white-space: nowrap;
+}
+.rc-stage.is-focus .rc-stage-op { color: var(--accent); }
+.rc-stage-shape {
+  grid-row: 3; align-self: end;
+  font-family: "Martian Mono", ui-monospace, monospace; font-size: 0.6rem; color: var(--label-ink);
+}
+.rc-stage-canvas { display: block; cursor: crosshair; image-rendering: pixelated; }
+.rc-stage-pad { position: relative; }
+
+.rc-pad { width: 100%; height: 100%; cursor: crosshair; }
+.rc-pad-canvas { display: block; width: 100%; height: 100%; }
+.rc-pad-tools { position: absolute; right: 6px; top: 6px; display: flex; gap: 3px; z-index: 2; }
+.rc-pad-label {
+  position: absolute; left: 6px; top: 6px; margin: 0; padding: 3px 7px;
+  background: rgba(6, 13, 9, 0.82); border: 1px solid var(--hairline);
+  font-size: 0.6rem; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--accent);
+}
+.rc-pad-label .rc-name { text-transform: none; letter-spacing: 0; font-family: "Martian Mono", ui-monospace, monospace; font-size: 0.72rem; }
+.rc-empty {
+  position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); margin: 0;
+  padding: 8px 14px; background: rgba(6, 13, 9, 0.85); border: 1px solid var(--edge); pointer-events: none;
+  font-size: 0.66rem; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase;
+}
+
+/* logits and probabilities */
+.rc-logits, .rc-probs { list-style: none; margin: 0; padding: 0; display: grid; align-content: space-between; }
+.rc-logits { width: 128px; }
+.rc-logits li, .rc-probs button {
+  display: grid; grid-template-columns: 1.1em minmax(0, 1fr) 3.4em; align-items: center; gap: 6px;
+  cursor: pointer;
+}
+.rc-probs button { width: 100%; padding: 0; background: none; border: 0; }
+.rc-logits b, .rc-probs b { font-family: "Martian Mono", ui-monospace, monospace; font-size: 0.76rem; color: var(--label-ink); text-align: center; }
+.rc-num { font-family: "Martian Mono", ui-monospace, monospace; font-size: 0.62rem; color: var(--label-ink); text-align: right; font-variant-numeric: tabular-nums; }
+.rc-zbar, .rc-bar { position: relative; height: 8px; background: rgba(148, 255, 201, 0.07); }
+.rc-zbar::after { content: ""; position: absolute; left: 50%; top: -2px; bottom: -2px; width: 1px; background: var(--hairline); }
+.rc-zbar i, .rc-bar i { position: absolute; top: 0; bottom: 0; left: 0; background: rgba(148, 255, 201, 0.6); }
+.rc-zbar i.is-neg { background: rgba(70, 135, 230, 0.75); }
+.rc-logits li.is-focus b, .rc-logits li:hover b { color: var(--accent); }
+.rc-soft { display: grid; grid-template-rows: minmax(0, 1fr) auto; gap: 10px; width: 168px; }
+.rc-probs li.is-top b, .rc-probs li.is-top .rc-num { color: var(--accent); }
+.rc-probs li.is-top .rc-bar i { background: var(--accent); }
+.rc-probs li.is-chosen b { outline: 1px solid var(--ink); outline-offset: 2px; }
+.rc-probs button:hover .rc-bar { background: rgba(148, 255, 201, 0.14); }
+.rc-fool { display: grid; gap: 5px; }
+.rc-fool-digits { display: grid; grid-template-columns: repeat(10, 1fr); gap: 2px; }
+.rc-fool-digits .pg-tiny { width: auto; font-family: "Martian Mono", ui-monospace, monospace; font-size: 0.6rem; }
+
+.rc-run { border-top: 1px solid var(--hairline); padding-top: 6px; }
+
+/* ---- below: the arithmetic, and where it lands ---- */
+
+.rc-below {
+  margin: 0 var(--gutter);
+  display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 14px; min-height: 0;
+}
+.rc-explain, .rc-where { background: var(--panel); border: 1px solid var(--hairline); padding: 14px 18px; min-height: 0; }
+.rc-explain { overflow: auto; scrollbar-width: thin; }
+.rc-where { display: grid; align-content: start; gap: 8px; }
+.rc-facts { margin: 0; font-size: 0.72rem; line-height: 1.45; color: var(--label-ink); }
+
+.rc-inspect { display: grid; gap: 12px; align-content: start; }
+.rc-eq {
+  margin: 0; font-family: "Martian Mono", ui-monospace, monospace; font-size: 0.8rem; line-height: 1.6;
+  color: var(--ink); font-variant-numeric: tabular-nums;
+}
+.rc-eq b { font-weight: 600; }
+/* a name: the layer above, the position below, stacked on the same letter */
+.rc-name { white-space: nowrap; }
+.rc-name sup, .rc-name sub { font-size: 0.68em; line-height: 0; }
+.rc-name sup { vertical-align: 0.55em; }
+.rc-name sub { vertical-align: -0.35em; }
+.rc-ss {
+  display: inline-flex; flex-direction: column; align-items: flex-start;
+  font-size: 0.68em; line-height: 1.05; vertical-align: 0.42em; margin-left: 0.05em;
+}
+.rc-eq sub, .rc-terms sub { font-size: 0.72em; vertical-align: -0.3em; line-height: 0; }
+.rc-stage-sym { text-transform: none; letter-spacing: 0; font-family: "Martian Mono", ui-monospace, monospace; }
+.rc-logits.is-marked { outline: 1.5px solid var(--accent); outline-offset: 3px; }
+.rc-result { color: var(--accent); }
+.rc-cut { color: rgb(70, 135, 230); font-size: 0.72rem; }
+.rc-ops { display: flex; flex-wrap: wrap; align-items: center; gap: 14px; }
+.rc-op { margin: 0; display: grid; gap: 5px; justify-items: start; }
+.rc-op canvas { display: block; border: 1px solid var(--hairline); image-rendering: pixelated; }
+.rc-op figcaption { font-size: 0.62rem; letter-spacing: 0.06em; color: var(--label-ink); max-width: 22ch; }
+.rc-sym { font-family: "Martian Mono", ui-monospace, monospace; font-size: 1.1rem; color: var(--label-ink); }
+.rc-terms { margin: 0; font-family: "Martian Mono", ui-monospace, monospace; font-size: 0.68rem; line-height: 1.7; color: var(--label-ink); }
+.rc-terms small { font-size: 0.85em; opacity: 0.8; }
+.rc-more { opacity: 0.7; }
+.rc-note { margin: 0; font-size: 0.8rem; line-height: 1.5; color: var(--label-ink); max-width: 68ch; }
+.rc-note sup { font-size: 0.7em; }
+.rc-nums { display: grid; gap: 2px; }
+.rc-nums span {
+  min-width: 42px; padding: 5px 4px; border: 1px solid var(--hairline);
+  font-family: "Martian Mono", ui-monospace, monospace; font-size: 0.62rem; color: var(--ink);
+  text-align: right; font-variant-numeric: tabular-nums;
+}
+.rc-block { display: inline-grid; gap: 3px; width: max-content; }
+.rc-block span {
+  padding: 8px 12px; border: 1px solid var(--hairline);
+  font-family: "Martian Mono", ui-monospace, monospace; font-size: 0.8rem; color: var(--label-ink); text-align: right;
+}
+.rc-block span.is-max { border-color: var(--accent); color: var(--accent); }
+.rc-inspect { min-width: 0; }
+.rc-softmax { display: block; max-width: 100%; overflow-x: auto; border-collapse: collapse; font-family: "Martian Mono", ui-monospace, monospace; font-size: 0.68rem; font-variant-numeric: tabular-nums; }
+.rc-softmax th, .rc-softmax td { padding: 4px 8px; text-align: right; border-bottom: 1px solid var(--hairline); color: var(--label-ink); }
+.rc-softmax th { font-weight: 600; }
+.rc-softmax .is-k { color: var(--accent); }
+.rc-attack { margin: 0; padding-top: 10px; border-top: 1px solid var(--hairline); font-size: 0.8rem; line-height: 1.5; color: var(--label-ink); }
+.rc-attack b { color: var(--accent); font-family: "Martian Mono", ui-monospace, monospace; font-weight: 600; }
+
+/* space (kept from before) */
+.rc-space { display: grid; gap: 8px; }
+.rc-space-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 6px; }
+.rc-digits { display: flex; gap: 2px; }
+.rc-digits .pg-tiny { font-family: "Martian Mono", ui-monospace, monospace; font-size: 0.6rem; width: 18px; }
+.rc-space-canvas { display: block; border: 1px solid var(--hairline); }
+
+/* on a desktop the page is the window: the arithmetic scrolls inside its own panel */
+@media (min-width: 1101px) {
+  .rc { height: 100dvh; }
+  .rc-where { overflow: hidden; }
+}
+
+/* ---- narrow: the strip turns and runs down the page ---- */
+
+@media (max-width: 1100px) {
+  .rc-pass { height: auto; }
+  .rc-strip { flex-direction: column; align-items: stretch; gap: 26px; overflow: visible; }
+  .rc-stage { justify-items: center; grid-template-rows: 34px auto 18px; }
+  .rc-stage-shape { align-self: start; padding-top: 4px; }
+  .rc-stage + .rc-stage::before { left: 50%; top: -18px; width: 1px; height: 14px; }
+  .rc-stage-op { justify-self: start; }
+  .rc-below { grid-template-columns: 1fr; }
+  .rc-models { margin-left: 0; }
+}

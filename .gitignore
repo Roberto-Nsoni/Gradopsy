@@ -14,3 +14,14 @@ node_modules/
 !README.md
 .claude/
 .impeccable/
+data/raw/
+
+# LaTeX build files (paper/)
+*.aux
+*.bbl
+*.blg
+*.fdb_latexmk
+*.fls
+*.log
+*.out
+*.synctex.gz

@@ -134,3 +134,69 @@ def test_mlp_with_relu():
 
     params = [p for _, p in model.parameters()]
     check_grad(lambda: loss_f(model(X), y), params, atol=1e-5)
+
+
+# ------- Shape and image ops (recognize) --------
+
+def test_reshape():
+    a = Tensor(rng.normal(size=(2, 3, 4)), requires_grad=True)
+    check_grad(lambda: a.reshape(4, 6) * Tensor(np.arange(24.0).reshape(4, 6)), [a])
+
+def test_conv2d_no_padding():
+    x = Tensor(rng.normal(size=(2, 3, 6, 5)), requires_grad=True)
+    w = Tensor(rng.normal(size=(4, 3, 3, 2)), requires_grad=True)
+    b = Tensor(rng.normal(size=(4,)), requires_grad=True)
+    # a weighted sum, so every output position counts differently
+    k = Tensor(rng.normal(size=(2, 4, 4, 4)))
+    check_grad(lambda: x.conv2d(w, b, padding=0) * k, [x, w, b])
+
+def test_conv2d_padding():
+    x = Tensor(rng.normal(size=(2, 2, 5, 5)), requires_grad=True)
+    w = Tensor(rng.normal(size=(3, 2, 3, 3)), requires_grad=True)
+    b = Tensor(rng.normal(size=(3,)), requires_grad=True)
+    k = Tensor(rng.normal(size=(2, 3, 5, 5)))
+    check_grad(lambda: x.conv2d(w, b, padding=1) * k, [x, w, b])
+
+def test_conv2d_matches_direct_sum():
+    """Not only consistent gradients: the forward is the cross-correlation it claims to be."""
+    x = rng.normal(size=(1, 2, 5, 5))
+    w = rng.normal(size=(3, 2, 3, 3))
+    b = rng.normal(size=(3,))
+    out = Tensor(x).conv2d(Tensor(w), Tensor(b), padding=1).data
+    xp = np.pad(x, ((0, 0), (0, 0), (1, 1), (1, 1)))
+    ref = np.zeros((1, 3, 5, 5))
+    for o in range(3):
+        for i in range(5):
+            for j in range(5):
+                ref[0, o, i, j] = b[o] + (w[o] * xp[0, :, i:i + 3, j:j + 3]).sum()
+    assert np.allclose(out, ref)
+
+def test_maxpool2d():
+    x = Tensor(rng.normal(size=(2, 3, 4, 6)), requires_grad=True)
+    k = Tensor(rng.normal(size=(2, 3, 2, 3)))
+    check_grad(lambda: x.maxpool2d(2) * k, [x])
+
+def test_small_cnn_with_cross_entropy():
+    """conv -> relu -> pool -> flatten -> linear -> CE, every parameter checked end to end."""
+    from ml.nn import Conv2D, MaxPool2D, Flatten, Sequential, Linear
+    np.random.seed(1)
+    net = Sequential(Conv2D(1, 2, 3, padding=1), ReLU(), MaxPool2D(2), Flatten(), Linear(2 * 2 * 2, 3))
+    X = Tensor(rng.normal(size=(3, 1, 4, 4)))
+    y = Tensor(np.array([0, 2, 1]))
+    loss_f = CrossEntropyFromLogits()
+    params = [p for _, p in net.parameters()]
+    check_grad(lambda: loss_f(net(X), y), params, atol=1e-5)
+
+
+
+def test_freeze():
+    """A frozen model builds no graph through its weights, but still differentiates its input."""
+    from ml.nn import Sequential, Linear
+    np.random.seed(2)
+    net = Sequential(Linear(3, 4), Tanh(), Linear(4, 2))
+    net.freeze()
+    out = net(Tensor(rng.normal(size=(5, 3))))
+    assert not out.requires_grad and not out._prev
+
+    x = Tensor(rng.normal(size=(5, 3)), requires_grad=True)
+    check_grad(lambda: net(x), [x])

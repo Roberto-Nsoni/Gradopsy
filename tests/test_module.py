@@ -58,3 +58,13 @@ def test_linear_without_bias():
 
     assert layer.b is None
     assert [name for name, _ in layer.parameters()] == ["W"]
+
+
+def test_conv_net_shapes():
+    import numpy as np
+    from ml.tensor import Tensor
+    from ml.nn import Conv2D, MaxPool2D, Flatten, Sequential, Linear, ReLU
+    net = Sequential(Conv2D(1, 8, 5, padding=2), ReLU(), MaxPool2D(2),
+                     Conv2D(8, 16, 5, padding=2), ReLU(), MaxPool2D(2), Flatten(), Linear(16 * 7 * 7, 10))
+    assert net(Tensor(np.zeros((3, 1, 28, 28)))).shape == (3, 10)
+    assert sum(p.size for _, p in net.parameters()) == 8 * 25 + 8 + 16 * 8 * 25 + 16 + 784 * 10 + 10

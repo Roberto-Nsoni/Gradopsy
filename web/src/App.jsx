@@ -4,10 +4,11 @@ import { boot } from "./engine";
 import Waiting from "./looks/Waiting";
 import Look, { LooksIndex, TypeIndex } from "./looks/Look";
 import Playground from "./playground/Playground";
+import Recognize from "./recognize/Recognize";
 
 // The four plates of the old world (demos/, components/, world/) are off the routes, not deleted:
 // the playground replaces all of them and they stay in the repository as reference.
-const ROUTES = { playground: Playground };
+const ROUTES = { playground: Playground, recognize: Recognize };
 
 /**
  * If a page ever throws while rendering, say so on the tube instead of leaving it black. The

@@ -198,3 +198,24 @@ export const pgProbe = (key, idx, x, y) => unwrap(call("pg_probe", key, idx, x, 
 export const pgRewind = (key, idx) => unwrap(call("pg_rewind", key, idx));
 
 export const pgClose = (key) => call("pg_close", key);
+
+/**
+ * recognize: MNIST networks trained offline by scripts/train_mnist.py with the same engine. Byte
+ * buffers go in as Uint8Arrays and come back as typed arrays; everything is computed in Python.
+ */
+const bytesIn = (buf) => (buf instanceof Uint8Array ? buf : new Uint8Array(buf));
+
+export const recLoad = (model, weights) => unwrap(call("rec_load", model, bytesIn(weights)));
+export const recHistory = (model, history) => unwrap(call("rec_history", model, bytesIn(history)));
+export const recAt = (model, idx) => call("rec_at", model, idx);
+export const recSaliency = (model, pixels, stage, index) =>
+  unwrap(call("rec_saliency", model, Array.from(pixels), stage, index), { grad: "f32" });
+export const recAttack = (model, pixels, target) =>
+  unwrap(call("rec_attack", model, Array.from(pixels), target), { pixels: "f32" });
+export const recTestset = (imagesGz, labels) => unwrap(call("rec_testset", bytesIn(imagesGz), bytesIn(labels)));
+export const recEmbedPart = (model, start, count) => call("rec_embed_part", model, start, count);
+export const recEmbedAxes = (model, iters) => call("rec_embed_axes", model, iters);
+export const recEmbed = (model) => unwrap(call("rec_embed", model), { xy: "f32" });
+export const recTrace = (model, pixels) => unwrap(call("rec_trace", model, Array.from(pixels)), { data: "f32" });
+export const recExplain = (model, stage, index) =>
+  unwrap(call("rec_explain", model, stage, index), { patch: "f32", kernel: "f32", products: "f32", weights: "f32", inputs: "f32" });

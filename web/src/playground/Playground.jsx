@@ -601,8 +601,11 @@ export default function Playground() {
 
       <header className="pg-head">
         <a className="look-mark" href="/">visualML</a>
-        <h1 className="pg-title">playground</h1>
-        <p className="pg-say">A network you build, learning in this tab. Every unit draws its own cut.</p>
+        <h1 className="pg-visually-hidden">visualML playground</h1>
+        <nav className="pg-nav" aria-label="Demos">
+          <a href="/playground" aria-current="page">playground</a>
+          <a href="/recognize">recognize</a>
+        </nav>
         <nav className="look-source pg-source"><a href={REPO} target="_blank" rel="noreferrer">source</a></nav>
       </header>
 
