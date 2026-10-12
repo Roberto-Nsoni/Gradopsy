@@ -1,5 +1,5 @@
 """
-The bridge the page talks to. Everything here runs inside Pyodide, on the real visualml
+The bridge the page talks to. Everything here runs inside Pyodide, on the real gradopsy
 package: nothing is reimplemented in JavaScript.
 
 Every run is computed whole and then replayed by the page. That is what makes scrubbing
@@ -8,13 +8,13 @@ as raw bytes; as JSON a single boundary run would be several megabytes.
 """
 import numpy as np
 
-from visualml.tensor import Tensor
-from visualml.metrics import accuracy
-from visualml.nn import MLP, ReLU, Tanh, Sigmoid, MSE, CrossEntropyFromLogits
-from visualml.data import SURFACES, make_spirals, make_moons, make_circles, make_blobs
-from visualml.optim import SGD, Momentum, RMSProp, Adam, BFGS, Newton, flat_params
-from visualml.training import Trainer, Recorder, SurfaceRunner
-from visualml.viz import make_grid, predict_grid, trajectory_directions, loss_surface, project_trajectory
+from gradopsy.tensor import Tensor
+from gradopsy.metrics import accuracy
+from gradopsy.nn import MLP, ReLU, Tanh, Sigmoid, MSE, CrossEntropyFromLogits
+from gradopsy.data import SURFACES, make_spirals, make_moons, make_circles, make_blobs
+from gradopsy.optim import SGD, Momentum, RMSProp, Adam, BFGS, Newton, flat_params
+from gradopsy.training import Trainer, Recorder, SurfaceRunner
+from gradopsy.viz import make_grid, predict_grid, trajectory_directions, loss_surface, project_trajectory
 
 OPTIMIZERS = {"sgd": SGD, "momentum": Momentum, "rmsprop": RMSProp, "adam": Adam,
               "bfgs": BFGS, "newton": Newton}
@@ -379,7 +379,7 @@ def live_close(key):
 
 import time
 
-from visualml.optim import set_flat_params
+from gradopsy.optim import set_flat_params
 
 RUNS = {}
 
@@ -606,7 +606,7 @@ def run_close(key):
 # few hundred parameters costs a few kilobytes a snapshot, and any moment of the run can be
 # re-rendered exactly — every neuron, every weight — by loading it into a mirror of the model.
 
-from visualml.nn import Sequential, Linear
+from gradopsy.nn import Sequential, Linear
 
 PG = {}
 PG_ACTIVATIONS = {"relu": ReLU, "tanh": Tanh, "sigmoid": Sigmoid, "linear": None}
@@ -1027,7 +1027,7 @@ def pg_close(key):
 import gzip
 import io
 
-from visualml.nn import Conv2D as _Conv2D, MaxPool2D as _MaxPool2D, Flatten as _Flatten
+from gradopsy.nn import Conv2D as _Conv2D, MaxPool2D as _MaxPool2D, Flatten as _Flatten
 
 REC = {}
 REC_TEST = {}

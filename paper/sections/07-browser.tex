@@ -3,7 +3,7 @@
 
 The website is static: there is no server to train on. Instead, the engine itself runs in the
 visitor's browser. Pyodide~\cite{pyodide} is CPython and NumPy compiled to WebAssembly; the page
-downloads it once (about 15\,MB), installs the visualml wheel with \code{micropip}, and loads a
+downloads it once (about 15\,MB), installs the gradopsy wheel with \code{micropip}, and loads a
 bridge module (\code{demos/src/engine.py}) that exposes a few functions to JavaScript. Nothing about
 the mathematics is reimplemented in JavaScript: the page only sends inputs across and draws the
 arrays that come back.

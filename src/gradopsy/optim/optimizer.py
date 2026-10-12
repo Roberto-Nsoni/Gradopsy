@@ -1,8 +1,8 @@
 import numpy as np
 from typing import Callable, Iterator
 
-from visualml.tensor import Tensor
-from visualml.ops import Array
+from gradopsy.tensor import Tensor
+from gradopsy.ops import Array
 
 type Closure = Callable[[], float]
 

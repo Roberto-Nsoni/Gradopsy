@@ -1,9 +1,9 @@
 import numpy as np
 from typing import Iterator
 
-from visualml.tensor import Tensor
-from visualml.optim.optimizer import Optimizer, Closure, flat_params, set_flat_params, flat_grad, make_fg
-from visualml.optim.linesearch import blsnw32
+from gradopsy.tensor import Tensor
+from gradopsy.optim.optimizer import Optimizer, Closure, flat_params, set_flat_params, flat_grad, make_fg
+from gradopsy.optim.linesearch import blsnw32
 
 
 class BFGS(Optimizer):

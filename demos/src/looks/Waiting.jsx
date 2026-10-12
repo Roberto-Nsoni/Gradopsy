@@ -48,7 +48,7 @@ export default function Waiting({ progress, failed }) {
       <canvas ref={tube} className="look-canvas" aria-hidden="true" />
 
       <div className="look-column look-column-mid">
-        <h1 className="look-column-mark">visualML</h1>
+        <h1 className="look-column-mark">Gradopsy</h1>
         <p className="look-boot" role="status">
           <i>{failed ? "failed" : "starting"}</i>
           {progress}

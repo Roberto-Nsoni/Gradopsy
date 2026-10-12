@@ -22,7 +22,7 @@ export function Masthead({ route }) {
   return (
     <header className="masthead">
       <a className="masthead-mark" href="#/">
-        <span className="masthead-name">visualML</span>
+        <span className="masthead-name">Gradopsy</span>
         <span className="masthead-sub overline">a machine-learning engine, cut open</span>
       </a>
 

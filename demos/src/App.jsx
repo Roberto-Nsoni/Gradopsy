@@ -9,6 +9,7 @@ import Recognize from "./recognize/Recognize";
 // The four plates of the old world (demos/, components/, world/) are off the routes, not deleted:
 // the playground replaces all of them and they stay in the repository as reference.
 const ROUTES = { playground: Playground, recognize: Recognize };
+const TITLES = { playground: "Playground", recognize: "Recognize" };
 
 /**
  * If a page ever throws while rendering, say so on the tube instead of leaving it black. The
@@ -23,7 +24,7 @@ class Guard extends Component {
     return (
       <div className="look" style={{ display: "grid", placeItems: "center", padding: 24 }}>
         <div className="look-column look-column-mid" role="alert">
-          <h1 className="look-column-mark">visualML</h1>
+          <h1 className="look-column-mark">Gradopsy</h1>
           <p className="look-column-say">Something on this page broke. Reload to start it again; the details are in the console.</p>
           <button type="button" className="look-act" onClick={() => window.location.reload()}>Reload</button>
         </div>
@@ -69,6 +70,10 @@ export default function App() {
 
     return () => { window.removeEventListener("popstate", onPop); document.removeEventListener("click", onClick); };
   }, []);
+
+  useEffect(() => {
+    document.title = TITLES[route] ? `${TITLES[route]} - Gradopsy` : "Gradopsy";
+  }, [route]);
 
   if (!ready) return <Waiting progress={progress} failed={failed} />;
 

@@ -1,6 +1,6 @@
 from typing import Callable
 
-from visualml.ops import Array
+from gradopsy.ops import Array
 
 type Fun = Callable[[Array], float]
 type Grad = Callable[[Array], Array]

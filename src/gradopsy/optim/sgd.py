@@ -1,8 +1,8 @@
 import numpy as np
 from typing import Iterator
 
-from visualml.tensor import Tensor
-from visualml.optim.optimizer import Optimizer, Closure
+from gradopsy.tensor import Tensor
+from gradopsy.optim.optimizer import Optimizer, Closure
 
 
 class SGD(Optimizer):

@@ -1,15 +1,15 @@
-# visualML
+# Gradopsy
 
 A machine-learning engine written from scratch on top of NumPy (tensors with reverse-mode
 automatic differentiation, layers, losses, first- and second-order optimizers) and a website
 that runs that same engine in the browser, through Pyodide, to show it working.
 
-**Live:** [visualml.rupar.workers.dev](https://visualml.rupar.workers.dev)
+**Live:** [gradopsy.rupar.workers.dev](https://gradopsy.rupar.workers.dev/)
 
 Nothing of the mathematics is reimplemented in JavaScript: the page loads the Python package and
 asks it for every number it draws.
 
-## The engine (`src/visualml/`)
+## The engine (`src/gradopsy/`)
 
 - **Autograd.** A `Tensor` records the graph as operations run, and `backward()` walks it in
   reverse topological order, applying each operation's own gradient rule. Broadcasting is handled

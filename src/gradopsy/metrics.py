@@ -1,6 +1,6 @@
 import numpy as np
 
-from visualml.tensor import Tensor
+from gradopsy.tensor import Tensor
 
 def accuracy(logits: Tensor, y) -> float:
     pred = logits.data.argmax(axis=1)

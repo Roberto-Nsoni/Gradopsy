@@ -1,4 +1,4 @@
-% visualML: a machine-learning engine written from scratch, and running in the browser.
+% Gradopsy: a machine-learning engine written from scratch, and running in the browser.
 %
 % Build:   cd paper && python make_tables.py && latexmk -pdf main.tex
 %          (or: pdflatex main && bibtex main && pdflatex main && pdflatex main)
@@ -30,7 +30,7 @@
 \newcommand{\dL}[1]{\frac{\partial L}{\partial #1}}  % the gradient of the loss with respect to #1
 \newcommand{\code}[1]{\texttt{#1}}
 
-\title{\textbf{visualML}\\[2pt]\large A reverse-mode autodiff engine, its optimizers, and running it in the browser}
+\title{\textbf{Gradopsy}\\[2pt]\large A reverse-mode autodiff engine, its optimizers, and running it in the browser}
 \author{Roberto Nsoni}
 \date{\today}
 
@@ -38,7 +38,7 @@
 \maketitle
 
 \begin{abstract}
-visualML is a small machine-learning engine written from scratch on top of NumPy: a tensor with
+Gradopsy is a small machine-learning engine written from scratch on top of NumPy: a tensor with
 reverse-mode automatic differentiation, layers, losses, first-order optimizers (SGD, momentum,
 RMSProp, Adam) and second-order ones (BFGS and damped Newton with a finite-difference Hessian)
 under a strong-Wolfe line search. The same package runs unmodified in the browser through Pyodide,

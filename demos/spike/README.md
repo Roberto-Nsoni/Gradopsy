@@ -5,7 +5,7 @@ Pyodide es CPython + NumPy compilados a WebAssembly. Aquí se ejecuta en Node, q
 runtime que el navegador.
 
 ```bash
-cd ../..  && uv build --wheel     # genera dist/visualml-0.1.0-py3-none-any.whl
+cd ../..  && uv build --wheel     # genera dist/gradopsy-0.1.0-py3-none-any.whl
 cd demos/spike && npm i && node spike.mjs
 ```
 
@@ -23,7 +23,7 @@ midiendo cuánto tarda cada uno.
 **Los números salen idénticos bit a bit** en los siete optimizadores y en la loss final del MLP.
 
 Arranque: **3.4 s**. Descarga: ~14.7 MB sin comprimir (9.2 wasm + 2.5 stdlib + 2.9 numpy +
-0.03 del propio visualml).
+0.03 del propio gradopsy).
 
 ## Qué implica
 

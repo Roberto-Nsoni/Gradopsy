@@ -1,10 +1,10 @@
 import numpy as np
 from typing import Iterator
 
-from visualml.tensor import Tensor
-from visualml.ops import Array
-from visualml.optim.optimizer import Optimizer, Closure, flat_params, set_flat_params, flat_grad, make_fg
-from visualml.optim.linesearch import blsnw32
+from gradopsy.tensor import Tensor
+from gradopsy.ops import Array
+from gradopsy.optim.optimizer import Optimizer, Closure, flat_params, set_flat_params, flat_grad, make_fg
+from gradopsy.optim.linesearch import blsnw32
 
 
 def hessian_fd(g, x: Array, h: float = 1e-5) -> Array:

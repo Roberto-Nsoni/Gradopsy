@@ -257,7 +257,7 @@ function Still({ still }) {
 }
 
 function Evidence() {
-  // Counted, not estimated: `pytest -q` and a line count over src/visualml. PRODUCT.md forbids
+  // Counted, not estimated: `pytest -q` and a line count over src/gradopsy. PRODUCT.md forbids
   // putting a figure on this page that nobody measured.
   const facts = [
     ["121", "tests, green", "every operation checked against a numerical gradient"],

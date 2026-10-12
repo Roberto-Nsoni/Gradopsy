@@ -337,8 +337,8 @@ export default function Recognize() {
       <canvas ref={tube} className="pg-tube" aria-hidden="true" />
 
       <header className="pg-head rc-head">
-        <a className="look-mark" href="/">visualML</a>
-        <h1 className="pg-visually-hidden">visualML recognize</h1>
+        <a className="look-mark" href="/">Gradopsy</a>
+        <h1 className="pg-visually-hidden">Gradopsy recognize</h1>
         <nav className="pg-nav" aria-label="Demos">
           <a href="/playground">playground</a>
           <a href="/recognize" aria-current="page">recognize</a>

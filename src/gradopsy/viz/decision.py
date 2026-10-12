@@ -1,8 +1,8 @@
 import numpy as np
 
-from visualml.tensor import Tensor
-from visualml.ops import Softmax
-from visualml.nn.module import Linear
+from gradopsy.tensor import Tensor
+from gradopsy.ops import Softmax
+from gradopsy.nn.module import Linear
 
 # Numbers the input space lens eats. Nothing here draws anything, it all comes back as arrays.
 

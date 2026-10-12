@@ -1,9 +1,9 @@
 {
-  "name": "visualml-web",
+  "name": "gradopsy-web",
   "private": true,
   "type": "module",
   "scripts": {
-    "wheel": "cd .. && uv build --wheel && cp dist/visualml-*.whl demos/public/ && basename $(ls -t dist/visualml-*.whl | head -1) > demos/public/wheel.txt",
+    "wheel": "cd .. && uv build --wheel && cp dist/gradopsy-*.whl demos/public/ && basename $(ls -t dist/gradopsy-*.whl | head -1) > demos/public/wheel.txt",
     "predev": "npm run wheel",
     "prebuild": "npm run wheel",
     "dev": "vite",

@@ -1,7 +1,7 @@
 import numpy as np
 from typing import Any, Iterator
 
-from visualml.tensor import Tensor
+from gradopsy.tensor import Tensor
 
 
 class Module:

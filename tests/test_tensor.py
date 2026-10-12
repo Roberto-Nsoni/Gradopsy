@@ -1,6 +1,6 @@
 import numpy as np
-from visualml.tensor import Tensor
-from visualml.ops import *
+from gradopsy.tensor import Tensor
+from gradopsy.ops import *
 
 np.random.seed(42)
 

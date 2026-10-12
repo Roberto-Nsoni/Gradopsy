@@ -1,7 +1,7 @@
 import numpy as np
 
-from visualml.tensor import Tensor
-from visualml.optim import flat_params, set_flat_params
+from gradopsy.tensor import Tensor
+from gradopsy.optim import flat_params, set_flat_params
 
 # Numbers the loss landscape lens eats.
 

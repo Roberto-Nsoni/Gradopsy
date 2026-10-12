@@ -1,10 +1,10 @@
 import numpy as np
 
-from visualml.tensor import Tensor
-from visualml.nn import Module, Loss
-from visualml.optim import Optimizer, flat_params, flat_grad
-from visualml.data import iterate_minibatches
-from visualml.viz import predict_grid
+from gradopsy.tensor import Tensor
+from gradopsy.nn import Module, Loss
+from gradopsy.optim import Optimizer, flat_params, flat_grad
+from gradopsy.data import iterate_minibatches
+from gradopsy.viz import predict_grid
 
 
 def make_snapshot(k: int, loss: float, params, opt: Optimizer) -> dict:

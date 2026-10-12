@@ -1,6 +1,6 @@
 import numpy as np
 
-from visualml.optim import flat_params, set_flat_params
+from gradopsy.optim import flat_params, set_flat_params
 
 class EarlyStopping:
     def __init__(self, patience: int):

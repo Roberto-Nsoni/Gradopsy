@@ -1,10 +1,10 @@
 import numpy as np
 
-from visualml.tensor import Tensor
-from visualml.nn import MLP, Linear, Tanh, CrossEntropyFromLogits
-from visualml.optim import Adam
-from visualml.data import make_spirals
-from visualml.training import Trainer
+from gradopsy.tensor import Tensor
+from gradopsy.nn import MLP, Linear, Tanh, CrossEntropyFromLogits
+from gradopsy.optim import Adam
+from gradopsy.data import make_spirals
+from gradopsy.training import Trainer
 
 
 def test_save_and_load_gives_the_same_predictions(tmp_path):

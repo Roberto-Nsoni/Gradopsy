@@ -1,8 +1,8 @@
 import numpy as np
 
-from visualml.data import SURFACES
-from visualml.optim import Adam, SGD, BFGS
-from visualml.training import SurfaceRunner, Recorder
+from gradopsy.data import SURFACES
+from gradopsy.optim import Adam, SGD, BFGS
+from gradopsy.training import SurfaceRunner, Recorder
 
 
 def record(optimizer_class=Adam, steps=50, every=1, **kwargs):

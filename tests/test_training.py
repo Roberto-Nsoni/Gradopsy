@@ -1,12 +1,12 @@
 import numpy as np
 
-from visualml.tensor import Tensor
-from visualml.metrics import accuracy
-from visualml.nn import MLP, ReLU, Tanh, CrossEntropyFromLogits
-from visualml.optim import SGD, Adam, BFGS, LinearDecay, flat_params
-from visualml.data import make_spirals, make_moons, iterate_minibatches, from_points
-from visualml.training import Trainer, EarlyStopping
-from visualml.viz import make_grid
+from gradopsy.tensor import Tensor
+from gradopsy.metrics import accuracy
+from gradopsy.nn import MLP, ReLU, Tanh, CrossEntropyFromLogits
+from gradopsy.optim import SGD, Adam, BFGS, LinearDecay, flat_params
+from gradopsy.data import make_spirals, make_moons, iterate_minibatches, from_points
+from gradopsy.training import Trainer, EarlyStopping
+from gradopsy.viz import make_grid
 
 
 def spirals():

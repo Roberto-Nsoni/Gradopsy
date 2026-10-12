@@ -19,7 +19,7 @@ import "./playground.css";
 /*
  * The playground: draw the data, build the network, and watch every unit in it learn.
  *
- * The page owns the data and the loop; the engine — visualml, in this tab, through Pyodide —
+ * The page owns the data and the loop; the engine — gradopsy, in this tab, through Pyodide —
  * owns the model, the optimizer and the history. Training runs a few milliseconds per animation
  * frame, so nothing ever freezes; the schematic is re-rendered from the engine a few times a
  * second; and any recorded moment of the run can be brought back, exactly, by dragging the head
@@ -600,8 +600,8 @@ export default function Playground() {
       <canvas ref={tube} className="pg-tube" aria-hidden="true" />
 
       <header className="pg-head">
-        <a className="look-mark" href="/">visualML</a>
-        <h1 className="pg-visually-hidden">visualML playground</h1>
+        <a className="look-mark" href="/">Gradopsy</a>
+        <h1 className="pg-visually-hidden">Gradopsy playground</h1>
         <nav className="pg-nav" aria-label="Demos">
           <a href="/playground" aria-current="page">playground</a>
           <a href="/recognize">recognize</a>
@@ -683,7 +683,7 @@ export default function Playground() {
             <div className="pg-code">
               <p className="pg-hint">
                 What this page is running, written out. The engine builds exactly these objects from the
-                visualml package; X_train and y_train are the filled points on the screen.
+                gradopsy package; X_train and y_train are the filled points on the screen.
               </p>
               <pre><code>{code}</code></pre>
             </div>

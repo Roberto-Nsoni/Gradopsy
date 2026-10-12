@@ -4,7 +4,7 @@ import { readFileSync } from "node:fs";
 const py = await loadPyodide();
 await py.loadPackage(["numpy", "micropip"]);
 const micropip = py.pyimport("micropip");
-await micropip.install("http://localhost:5199/visualml-0.1.0-py3-none-any.whl");   // igual que en el navegador
+await micropip.install("http://localhost:5199/gradopsy-0.1.0-py3-none-any.whl");   // igual que en el navegador
 console.log("wheel instalado desde URL");
 
 py.runPython(readFileSync("../src/engine.py", "utf8"));

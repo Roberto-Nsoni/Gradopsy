@@ -1,4 +1,4 @@
-// Does visualml run inside the browser? Pyodide is CPython + NumPy compiled to WebAssembly,
+// Does gradopsy run inside the browser? Pyodide is CPython + NumPy compiled to WebAssembly,
 // which is the whole premise of D11. This checks two things: that the numbers come out
 // identical to native Python, and how much slower it is.
 import { loadPyodide } from "pyodide";
@@ -6,7 +6,7 @@ import { readFileSync } from "node:fs";
 import { execFileSync } from "node:child_process";
 
 const RAIZ = new URL("../../", import.meta.url).pathname;
-const WHEEL = "visualml-0.1.0-py3-none-any.whl";
+const WHEEL = "gradopsy-0.1.0-py3-none-any.whl";
 
 const t0 = performance.now();
 const pyodide = await loadPyodide();
@@ -17,7 +17,7 @@ console.log(`pyodide + numpy arrancados en ${((performance.now() - t0) / 1000).t
 pyodide.FS.writeFile(`/${WHEEL}`, readFileSync(`${RAIZ}dist/${WHEEL}`));
 const micropip = pyodide.pyimport("micropip");
 await micropip.install(`emfs:/${WHEEL}`);
-console.log("visualml instalado desde el wheel");
+console.log("gradopsy instalado desde el wheel");
 
 pyodide.FS.writeFile("/carrera.py", readFileSync(new URL("./carrera.py", import.meta.url).pathname));
 pyodide.runPython(`import sys; sys.path.insert(0, "/")`);

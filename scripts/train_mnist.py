@@ -1,5 +1,5 @@
 """
-Train the recognize models on MNIST with visualml, and write what the web page shows.
+Train the recognize models on MNIST with gradopsy, and write what the web page shows.
 
 Nothing in the page's numbers is typed by hand: every accuracy on /recognize comes from the files
 this script writes.
@@ -25,12 +25,12 @@ import numpy as np
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "src"))
 
-from visualml.data import load_mnist, iterate_minibatches                      # noqa: E402
-from visualml.nn import (Sequential, Linear, ReLU, Conv2D, MaxPool2D, Flatten,   # noqa: E402
+from gradopsy.data import load_mnist, iterate_minibatches                      # noqa: E402
+from gradopsy.nn import (Sequential, Linear, ReLU, Conv2D, MaxPool2D, Flatten,   # noqa: E402
                    CrossEntropyFromLogits)
-from visualml.optim import Adam, LinearDecay, flat_params                                  # noqa: E402
-from visualml.tensor import Tensor                                            # noqa: E402
-from visualml.training import Trainer                                         # noqa: E402
+from gradopsy.optim import Adam, LinearDecay, flat_params                                  # noqa: E402
+from gradopsy.tensor import Tensor                                            # noqa: E402
+from gradopsy.training import Trainer                                         # noqa: E402
 
 DATA = ROOT / "data" / "raw" / "mnist"
 OUT = ROOT / "demos" / "public" / "recognize"

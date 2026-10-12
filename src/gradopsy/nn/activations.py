@@ -1,5 +1,5 @@
-from visualml.tensor import Tensor
-from visualml.nn.module import Module
+from gradopsy.tensor import Tensor
+from gradopsy.nn.module import Module
 
 class Sigmoid(Module):
     def forward(self, x: Tensor) -> Tensor:

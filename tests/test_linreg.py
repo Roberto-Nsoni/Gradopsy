@@ -1,8 +1,8 @@
 import numpy as np
 
-from visualml.tensor import Tensor
-from visualml.nn import Linear, MSE
-from visualml.optim import SGD
+from gradopsy.tensor import Tensor
+from gradopsy.nn import Linear, MSE
+from gradopsy.optim import SGD
 
 N = 200   # number of samples
 P = 3     # number of features

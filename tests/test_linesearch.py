@@ -1,6 +1,6 @@
 import numpy as np
 
-from visualml.optim import blsnw32, backtracking
+from gradopsy.optim import blsnw32, backtracking
 
 # Convex quadratic f(x) = 1/2 x'Ax - b'x, and Rosenbrock for something nastier.
 A = np.array([[3.0, 1.0], [1.0, 2.0]])

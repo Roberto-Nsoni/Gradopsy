@@ -50,7 +50,7 @@ const Band = ({ readout }) => (
   </div>
 );
 
-const Mark = () => <a className="look-mark" href="/">visualML</a>;
+const Mark = () => <a className="look-mark" href="/">Gradopsy</a>;
 
 /* ------------------------------------------------------------------ the studies */
 
@@ -74,7 +74,7 @@ function Cover({ readout }) {
       <header className="look-head look-head-end"><Source className="look-source" /></header>
 
       <div className="look-column">
-        <h1 className="look-column-mark"><a href="/">visualML</a></h1>
+        <h1 className="look-column-mark"><a href="/">Gradopsy</a></h1>
         <p className="look-column-say">
           An autograd engine written from scratch, training in this browser while you read this
         </p>
@@ -167,7 +167,7 @@ function Wordmark({ motion, readout }) {
         <div className="look-ends"><Nav /><Source /></div>
       </header>
       <div className="look-big">
-        <h1><a href="/">visualML</a></h1>
+        <h1><a href="/">Gradopsy</a></h1>
         <Plates />
       </div>
       <footer className="look-foot">

@@ -1,9 +1,9 @@
 # The exact same race, so native Python and Pyodide can be compared number by number.
 import time
 
-from visualml.data import SURFACES
-from visualml.optim import SGD, Momentum, RMSProp, Adam, BFGS, LBFGS, Newton
-from visualml.training import SurfaceRunner, Recorder
+from gradopsy.data import SURFACES
+from gradopsy.optim import SGD, Momentum, RMSProp, Adam, BFGS, LBFGS, Newton
+from gradopsy.training import SurfaceRunner, Recorder
 
 CORREDORES = [("SGD", SGD, {"lr": 0.002}), ("Momentum", Momentum, {"lr": 0.002}),
               ("RMSProp", RMSProp, {"lr": 0.02}), ("Adam", Adam, {"lr": 0.05}),
@@ -29,9 +29,9 @@ def carrera(nombre_superficie="double_well", steps=200):
 def entrenamiento(steps=300):
     """The `boundary` case: a real MLP training live, which is what D13 has to decide about."""
     import numpy as np
-    from visualml.nn import MLP, Tanh, CrossEntropyFromLogits
-    from visualml.data import make_spirals
-    from visualml.training import Trainer
+    from gradopsy.nn import MLP, Tanh, CrossEntropyFromLogits
+    from gradopsy.data import make_spirals
+    from gradopsy.training import Trainer
 
     np.random.seed(0)
     X, y = make_spirals(100, 3, noise=0.15, seed=0)

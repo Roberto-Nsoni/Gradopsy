@@ -3,13 +3,13 @@
 
 Most people who train neural networks never see the machinery that makes it possible: the graph
 that records every operation, the chain rule applied backwards through it, the update rule that
-turns a gradient into a step. visualML is that machinery written out, small enough to be read in an
+turns a gradient into a step. Gradopsy is that machinery written out, small enough to be read in an
 afternoon, and complete enough to reach the accuracy one expects on MNIST
 (Section~\ref{sec:experiments}).
 
 The project has two halves that share one codebase.
 \begin{itemize}
-  \item \textbf{The engine} (\code{src/visualml/}): a \code{Tensor} type with reverse-mode automatic
+  \item \textbf{The engine} (\code{src/gradopsy/}): a \code{Tensor} type with reverse-mode automatic
         differentiation (Section~\ref{sec:autodiff}), a set of differentiable operations
         (Section~\ref{sec:ops}), modules and losses (Section~\ref{sec:losses}), and six optimizers
         with a line search (Section~\ref{sec:optim}). It depends on nothing but NumPy.

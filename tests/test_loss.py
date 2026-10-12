@@ -1,8 +1,8 @@
 import numpy as np
 
-from visualml.tensor import Tensor
-from visualml.ops import Softmax
-from visualml.nn import MSE, CrossEntropyFromLogits, BCEWithLogitsLoss
+from gradopsy.tensor import Tensor
+from gradopsy.ops import Softmax
+from gradopsy.nn import MSE, CrossEntropyFromLogits, BCEWithLogitsLoss
 
 rng = np.random.default_rng(1)
 

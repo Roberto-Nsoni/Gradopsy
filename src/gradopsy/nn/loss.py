@@ -1,5 +1,5 @@
-from visualml.tensor import Tensor
-from visualml.ops import CrossEntropy, BCEWithLogits
+from gradopsy.tensor import Tensor
+from gradopsy.ops import CrossEntropy, BCEWithLogits
 
 class Loss:
     def __call__(self, y_pred: Tensor, y_true: Tensor) -> Tensor:

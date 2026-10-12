@@ -1,4 +1,4 @@
-// The bridge to Pyodide. There is no mathematics in this file: the real visualml package does
+// The bridge to Pyodide. There is no mathematics in this file: the real gradopsy package does
 // all of it, inside the browser. This only carries data across.
 import enginePy from "./engine.py?raw";
 
@@ -36,7 +36,7 @@ export function boot(onProgress) {
     pyodide = await window.loadPyodide({ indexURL: INDEX_URL });
     await pyodide.loadPackage(["numpy", "micropip"]);
 
-    onProgress?.("installing visualml");
+    onProgress?.("installing gradopsy");
     const micropip = pyodide.pyimport("micropip");
 
     // The full wheel filename matters: micropip rejects anything that is not PEP 427

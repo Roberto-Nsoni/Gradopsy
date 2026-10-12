@@ -1,6 +1,6 @@
-from visualml.tensor import Tensor
-from visualml.data import Surface
-from visualml.training.trainer import make_snapshot
+from gradopsy.tensor import Tensor
+from gradopsy.data import Surface
+from gradopsy.training.trainer import make_snapshot
 
 class SurfaceRunner:
     """

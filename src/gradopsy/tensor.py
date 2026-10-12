@@ -2,7 +2,7 @@ from __future__ import annotations
 import numpy as np
 from typing import Any
 
-from visualml.ops import (
+from gradopsy.ops import (
     Array, ScalarLike, Neg, Add, Mul, Pow, MatMul, Exp, Log, Sum, Mean, ReLU, Sigmoid, Tanh
     )
 
