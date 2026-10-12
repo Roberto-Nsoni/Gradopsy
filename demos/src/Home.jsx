@@ -102,7 +102,7 @@ const PLATES = [
   },
   {
     index: 4, href: "#/descent", title: "Descent",
-    line: "Seven optimizers from one starting point over the same terrain, first order against second. Newton settles onto a saddle, because a saddle is a stationary point too.",
+    line: "Seven optimizers from one starting point over the same terrain, first order against BFGS and Newton. Newton settles onto a saddle, because a saddle is a stationary point too.",
   },
 ];
 

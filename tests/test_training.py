@@ -27,7 +27,7 @@ def test_full_batch_training_learns_spirals():
 
 
 def test_bfgs_learns_spirals_in_far_fewer_steps():
-    """Second order on full batch: the point of the whole Stage 2.5."""
+    """BFGS on full batch: the point of the whole Stage 2.5."""
     X, y = spirals()
     model = MLP([2, 16, 16, 3], Tanh)
     trainer = Trainer(model, CrossEntropyFromLogits(), BFGS(model.parameters()))

@@ -1,7 +1,7 @@
 # Gradopsy
 
 A machine-learning engine written from scratch on top of NumPy (tensors with reverse-mode
-automatic differentiation, layers, losses, first- and second-order optimizers) and a website
+automatic differentiation, layers, losses, first-order optimizers, BFGS and damped Newton) and a website
 that runs that same engine in the browser, through Pyodide, to show it working.
 
 **Live:** [gradopsy.rupar.workers.dev](https://gradopsy.rupar.workers.dev/)

@@ -5,7 +5,7 @@ import {
 } from "../engine";
 import { VARS, paintTube } from "../looks/scope";
 import {
-  DEFAULTS, MAX_LAYERS, MAX_POINTS, SECOND_ORDER, SETS, FRAME_BUDGET, RATE_MAX, RATE_MIN, archKey, countParams, pythonFor,
+  DEFAULTS, MAX_LAYERS, MAX_POINTS, LINE_SEARCH, SETS, FRAME_BUDGET, RATE_MAX, RATE_MIN, archKey, countParams, pythonFor,
 } from "./config";
 import { CLASSES } from "./paint";
 import Screen from "./Screen";
@@ -429,7 +429,7 @@ export default function Playground() {
     }
     const c = state.current.config;
     const train = store.current.points.filter((p) => !p.test).length;
-    const steps = c.batch > 0 && !SECOND_ORDER.has(c.optimizer) ? Math.ceil(train / c.batch) : 1;
+    const steps = c.batch > 0 && !LINE_SEARCH.has(c.optimizer) ? Math.ceil(train / c.batch) : 1;
     absorb(pgAdvance(KEY, 0, Math.max(1, steps)));
     refresh(true);
   }, [absorb, refresh, scrub, goLive]);

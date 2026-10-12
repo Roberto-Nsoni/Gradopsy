@@ -53,7 +53,7 @@ def test_adam():
     assert np.allclose(run(Adam, 2000, lr=0.05), x_star, atol=1e-4)
 
 
-# ------- Second order --------
+# ------- BFGS and Newton --------
 
 def test_bfgs_converges_much_faster_than_sgd():
     """8 BFGS iterations against 300 of SGD, and it still wins by orders of magnitude."""

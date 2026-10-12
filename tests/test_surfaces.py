@@ -87,7 +87,7 @@ def test_newton_gets_stuck_on_the_saddle_while_everyone_else_escapes():
     assert np.allclose(stuck.position, (0.0, 0.0), atol=1e-6)
 
 
-def test_rosenbrock_second_order_beats_first_order():
+def test_rosenbrock_bfgs_beats_first_order():
     """40 BFGS steps against 20000 of SGD."""
     assert np.allclose(run("rosenbrock", BFGS, 40).position, (1.0, 1.0), atol=1e-6)
     assert not np.allclose(run("rosenbrock", SGD, 20000, lr=1e-3).position, (1.0, 1.0), atol=1e-6)

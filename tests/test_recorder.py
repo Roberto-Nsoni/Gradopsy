@@ -65,7 +65,7 @@ def test_sgd_records_no_state():
     assert set(columns) == {"k", "loss", "lr", "grad_norm", "params"}
 
 
-def test_second_order_records_its_own_state():
+def test_bfgs_records_its_own_state():
     columns = record(BFGS, steps=10).columns()
 
     assert columns["state_H"].shape == (10, 2, 2)

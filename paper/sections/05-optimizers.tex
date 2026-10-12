@@ -32,7 +32,7 @@ $0.01\,\alpha_0$ over the first $k_{ld}$ steps and keeps it there:
 $\alpha_k = (1 - k/k_{ld})\,\alpha_0 + (k/k_{ld})\, 0.01\,\alpha_0$ for $k \le k_{ld}$.
 
 \subsection{Line search}
-The second-order methods choose their step length $\alpha$ along a direction $d$ with a line search
+BFGS and Newton choose their step length $\alpha$ along a direction $d$ with a line search
 satisfying the strong Wolfe conditions~\cite{nocedal2006}:
 \begin{align}
   f(x + \alpha d) &\le f(x) + c_1 \alpha\, g(x)\T d, \tag{W1}\\
@@ -65,5 +65,5 @@ differences of the analytical gradient,
 and symmetrised as $(H + H\T)/2$, at a cost of $n+1$ gradient evaluations. The damping starts at
 $\lambda = 10^{-3}$ and is multiplied by $10$ until $d$ is a descent direction ($d\T g < 0$), which
 handles non-convex regions. The step length comes from the same line search with $c_2 = 0.9$.
-Newton and BFGS are only practical for small models, and all second-order methods require full-batch
+Newton and BFGS are only practical for small models, and both require full-batch
 gradients: minibatch noise destroys the curvature estimate.

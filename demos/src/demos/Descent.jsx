@@ -15,7 +15,7 @@ import { INK, fitCanvas, frame, paintTerrain } from "../world/section";
  * three are 2.5, 5.3 and 2.1 apart from each other, where the pairing this replaced put two
  * families 1.48 apart — close enough that two series read as one.
  *
- * Which family gets which drive is not arbitrary either. The second-order methods are what this
+ * Which family gets which drive is not arbitrary either. BFGS and Newton are what this
  * project is *for* — a damped Newton with a finite-difference Hessian is the thing a gallery of
  * SGD-and-Adam demos does not have — so they get the brightest phosphor, and the first-order
  * baselines they are being compared against sit at the dimmest. Every trail is stroked over a
@@ -54,7 +54,7 @@ const BY_KEY = Object.fromEntries(RUNNERS.map((r) => [r.key, r]));
 
 const NOTES = {
   double_well: "A saddle at the origin and real minima either side. Everything escapes except Newton, which settles onto the saddle: it solves for a stationary point, and a saddle is one.",
-  rosenbrock: "A long curved valley. Second order walks it; first order crawls.",
+  rosenbrock: "A long curved valley. BFGS and Newton walk it; first order crawls.",
   narrow_valley: "One direction fifty times steeper than the other.",
   beale: "Flat plateaus pressed against steep walls.",
   himmelblau: "Four minima. Where you land depends only on where you began.",
@@ -117,7 +117,7 @@ export default function Descent() {
 
           {[1, 2].map((order) => (
             <div className="control" key={order}>
-              <span className="overline">{order === 1 ? "first order" : "second order"}</span>
+              <span className="overline">{order === 1 ? "first order" : "bfgs · newton"}</span>
               <ul className="runners">
                 {RUNNERS.filter((r) => r.order === order).map((r) => (
                   <li key={r.key}>

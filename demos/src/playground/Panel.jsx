@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-import { LR_MAX, LR_MIN, OPTIMIZERS, SECOND_ORDER, SETS, fmtRate } from "./config";
+import { LR_MAX, LR_MIN, OPTIMIZERS, LINE_SEARCH, SETS, fmtRate } from "./config";
 import { CLASSES, MAX_CLASSES } from "./paint";
 import Icon, { ClassMark } from "./icons";
 
@@ -157,14 +157,14 @@ function NumberField({ value, onCommit, label, placeholder, disabled, min, max, 
 
 const OPT_NAMES = {
   sgd: "SGD", momentum: "Momentum", rmsprop: "RMSProp", adam: "Adam",
-  bfgs: "BFGS · second order",
+  bfgs: "BFGS · quasi-Newton",
 };
 
 const LOG_MIN = Math.log10(LR_MIN), LOG_MAX = Math.log10(LR_MAX);
 const roundRate = (v) => +Math.min(LR_MAX, Math.max(LR_MIN, v)).toPrecision(2);
 
 export function LearnPanel({ config, trainCount, onChange, onReseed }) {
-  const second = SECOND_ORDER.has(config.optimizer);
+  const searched = LINE_SEARCH.has(config.optimizer);
   const most = Math.max(1, trainCount);
   const batch = config.batch > 0 && config.batch < most ? config.batch : most;   // full is the top of the scale
 
@@ -172,7 +172,7 @@ export function LearnPanel({ config, trainCount, onChange, onReseed }) {
     <section className="pg-block pg-learn" aria-labelledby="pg-learn">
       <h2 className="pg-block-title" id="pg-learn">
         Learning
-        {second && <span className="pg-note pg-learn-note">second order · full batch, line search</span>}
+        {searched && <span className="pg-note pg-learn-note">quasi-Newton · full batch, line search</span>}
       </h2>
 
       <label className="pg-field">
@@ -183,25 +183,25 @@ export function LearnPanel({ config, trainCount, onChange, onReseed }) {
       </label>
 
       <div className="pg-field">
-        <span className="pg-label" title={second ? "The line search picks the step" : undefined}>rate</span>
+        <span className="pg-label" title={searched ? "The line search picks the step" : undefined}>rate</span>
         <div className="pg-tune">
-          <input type="range" className="pg-range" min={LOG_MIN} max={LOG_MAX} step={0.01} disabled={second}
+          <input type="range" className="pg-range" min={LOG_MIN} max={LOG_MAX} step={0.01} disabled={searched}
                  value={Math.log10(config.lr)} aria-label="Learning rate, logarithmic"
                  onChange={(e) => onChange({ lr: roundRate(10 ** Number(e.target.value)) })} />
-          <NumberField value={config.lr} label="Learning rate" disabled={second} format={fmtRate}
+          <NumberField value={config.lr} label="Learning rate" disabled={searched} format={fmtRate}
                        parse={(t) => { const v = Number(t); return v > 0 ? roundRate(v) : NaN; }}
                        onCommit={(v) => onChange({ lr: v })} />
         </div>
       </div>
 
       <div className="pg-field">
-        <span className="pg-label" title={second ? "Full batch: the line search needs it" : undefined}>batch</span>
+        <span className="pg-label" title={searched ? "Full batch: the line search needs it" : undefined}>batch</span>
         <div className="pg-tune">
-          <input type="range" className="pg-range" min={1} max={most} step={1} disabled={second}
-                 value={second ? most : batch} aria-label="Batch size, slider"
+          <input type="range" className="pg-range" min={1} max={most} step={1} disabled={searched}
+                 value={searched ? most : batch} aria-label="Batch size, slider"
                  onChange={(e) => { const v = Number(e.target.value); onChange({ batch: v >= most ? 0 : v }); }}
-                 aria-valuetext={second || batch >= most ? "full batch" : `${batch} points`} />
-          <NumberField value={second ? 0 : config.batch >= most ? 0 : config.batch} label="Batch size" disabled={second}
+                 aria-valuetext={searched || batch >= most ? "full batch" : `${batch} points`} />
+          <NumberField value={searched ? 0 : config.batch >= most ? 0 : config.batch} label="Batch size" disabled={searched}
                        placeholder="full" format={(v) => (v > 0 ? String(v) : "full")}
                        parse={(t) => { const tt = t.trim().toLowerCase(); if (tt === "" || tt === "full") return 0;
                                        const v = Math.round(Number(tt)); return v >= 1 ? (v >= most ? 0 : v) : NaN; }}

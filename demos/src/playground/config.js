@@ -13,7 +13,7 @@ export const SETS = [
 
 export const ACTIVATIONS = ["tanh", "relu", "sigmoid", "linear"];
 export const OPTIMIZERS = ["sgd", "momentum", "rmsprop", "adam", "bfgs"];
-export const SECOND_ORDER = new Set(["bfgs"]);
+export const LINE_SEARCH = new Set(["bfgs"]);
 export const LR_MIN = 0.0001;
 export const LR_MAX = 3;
 // Training speed, in epochs per second, 1 to 100. Ten by default: slow enough to watch every cut move; the top of
@@ -52,9 +52,9 @@ export const fmtRate = (v) => (v >= 0.001 ? String(+v.toPrecision(2)) : v.toExpo
  */
 export function pythonFor(c) {
   const acts = [...new Set(c.layers.map((l) => l.act).filter((a) => a !== "linear"))].map((a) => PY_ACT[a]);
-  const second = SECOND_ORDER.has(c.optimizer);
+  const searched = LINE_SEARCH.has(c.optimizer);
   const opt = { sgd: "SGD", momentum: "Momentum", rmsprop: "RMSProp", adam: "Adam", bfgs: "BFGS" }[c.optimizer];
-  const mini = !second && c.batch > 0;
+  const mini = !searched && c.batch > 0;
 
   const chain = [];
   let fan = 2;
@@ -82,13 +82,13 @@ export function pythonFor(c) {
   lines.push("loss_f = CrossEntropyFromLogits()");
 
   lines.push(
-    `trainer = Trainer(model, loss_f, ${opt}(model.parameters()${second ? "" : `, lr=${c.lr}`}))`,
+    `trainer = Trainer(model, loss_f, ${opt}(model.parameters()${searched ? "" : `, lr=${c.lr}`}))`,
     "",
     "for epoch in range(epochs):",
     ...(mini
       ? [`    for X_b, y_b in iterate_minibatches(X_train, y_train, batch_size=${c.batch}):`,
          "        trainer.step(X_b, y_b)"]
-      : [`    trainer.step(X_train, y_train)${second ? "          # full batch: the line search needs it" : ""}`]),
+      : [`    trainer.step(X_train, y_train)${searched ? "          # full batch: the line search needs it" : ""}`]),
   );
 
   return lines.join("\n");

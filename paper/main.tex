@@ -40,7 +40,7 @@
 \begin{abstract}
 Gradopsy is a small machine-learning engine written from scratch on top of NumPy: a tensor with
 reverse-mode automatic differentiation, layers, losses, first-order optimizers (SGD, momentum,
-RMSProp, Adam) and second-order ones (BFGS and damped Newton with a finite-difference Hessian)
+RMSProp, Adam) the quasi-Newton BFGS and damped Newton with a finite-difference Hessian, both
 under a strong-Wolfe line search. The same package runs unmodified in the browser through Pyodide,
 where a website uses it to train and inspect networks live. This document derives every operation
 and update rule exactly as implemented, describes how the implementation is verified, and reports

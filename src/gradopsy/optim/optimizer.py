@@ -20,7 +20,7 @@ def flat_grad(params: list[Tensor]) -> Array:
 
 def make_fg(params: list[Tensor], closure: Closure) -> tuple[Callable[[Array], float], Callable[[Array], Array]]:
     """
-    Turns the closure into the f(x) / g(x) pair the second order methods need:
+    Turns the closure into the f(x) / g(x) pair the line-search methods (BFGS, Newton) need:
     both move the parameters to x and reevaluate the model there.
     """
     def f(x: Array) -> float:

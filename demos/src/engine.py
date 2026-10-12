@@ -610,7 +610,7 @@ from gradopsy.nn import Sequential, Linear
 
 PG = {}
 PG_ACTIVATIONS = {"relu": ReLU, "tanh": Tanh, "sigmoid": Sigmoid, "linear": None}
-PG_SECOND_ORDER = {"bfgs"}
+PG_LINE_SEARCH = {"bfgs"}
 PG_HISTORY = 2000         # snapshots kept, one per epoch until then; past it the history is thinned and the cadence doubles
 
 
@@ -685,7 +685,7 @@ def _pg_build(layers, classes):
 
 def _pg_optimizer(s):
     model, key = s["model"], s["optimizer"]
-    if key in PG_SECOND_ORDER:
+    if key in PG_LINE_SEARCH:
         return OPTIMIZERS[key](model.parameters())
     return OPTIMIZERS[key](model.parameters(), lr=s["lr"])
 
@@ -749,7 +749,7 @@ def pg_set(key, spec):
         s["optimizer"] = spec["optimizer"]
     if "lr" in spec:
         s["lr"] = float(spec["lr"])
-        if not rebuild and s["optimizer"] not in PG_SECOND_ORDER:
+        if not rebuild and s["optimizer"] not in PG_LINE_SEARCH:
             s["trainer"].opt.lr = s["lr"]
     if rebuild:
         s["trainer"] = Trainer(s["model"], s["loss_f"], _pg_optimizer(s))
@@ -784,7 +784,7 @@ def _pg_batch(s):
     """The next minibatch of the current epoch, or the whole set. Returns (X, y, epoch_finished)."""
     n = len(s["X"])
     b = s["batch"]
-    if b <= 0 or b >= n or s["optimizer"] in PG_SECOND_ORDER:
+    if b <= 0 or b >= n or s["optimizer"] in PG_LINE_SEARCH:
         return s["X"], s["y"], True
     if s["order"] is None or s["cursor"] >= n:
         s["order"], s["cursor"] = s["rng"].permutation(n), 0
